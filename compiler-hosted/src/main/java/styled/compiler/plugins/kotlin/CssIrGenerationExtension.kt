@@ -19,8 +19,12 @@ fun IrCall.getConstValues(): Collection<String?> {
         .filterIsInstanceMapNotNull<IrConstImpl<*>, String?> { it.value?.toString() }
 }
 
+fun String.replacePropertyAccessor(): String {
+    return this.replace("<get-", "").replace("<set-", "").replace(">", "")
+}
+
 fun String.normalize(): String {
-    return this.replace("<get-", "").replace("<set-", "").replace(">", "").hyphenize()
+    return this.replacePropertyAccessor().hyphenize()
 }
 
 val builder = StringBuilder()

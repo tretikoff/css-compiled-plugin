@@ -33,7 +33,7 @@ class PropertyVisitor : IrElementVisitorVoid {
                 val name = element.symbol.descriptor.name.asString().normalize()
                 val declaration = when (name) {
                     "rgb" -> "rgb(${values.joinToString(", ")})"
-                    else -> "${values.firstOrNull() ?: ""}$name"
+                    else -> " ${values.firstOrNull() ?: ""}$name"
                 }
                 builder.append(declaration)
             }

@@ -12,10 +12,10 @@ class CssVisitor : IrElementVisitorVoid {
         if (element is IrCallImpl) { // TODO actually check if it is set property
             val name = element.symbol.descriptor.name.asString()
             if (name == "unaryPlus") {
-                builder.appendLine(element.dump())
+                element.transformChildren(StyleSheetInsertionTransformer(), null)
                 return // TODO if stylesheet - change to unaryPlus(string)
             } else {
-                builder.append(name.normalize(), ": ")
+                builder.append(name.normalize(), ":")
                 element.acceptChildren(PropertyVisitor(), null)
                 builder.appendLine(";")
             }
