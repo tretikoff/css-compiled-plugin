@@ -4,6 +4,8 @@ import kotlinx.css.hyphenize
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.declarations.name
+import org.jetbrains.kotlin.ir.declarations.path
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
@@ -24,28 +26,27 @@ fun String.replacePropertyAccessor(): String {
 }
 
 fun String.normalize(): String {
+
     return this.replacePropertyAccessor().hyphenize()
 }
 
-val builder = StringBuilder()
-val classnameBuilder = mutableListOf<String>()
-
-// list of stylesheet classname/property pair to css
-val dynamicStyleSheets = mutableMapOf<String, String>()
-
-// list of stylesheet classname/property pair to classname
-val staticStyleSheets = mutableMapOf<String, String>()
+lateinit var fragment: IrModuleFragment
+lateinit var context: IrPluginContext
 
 class CssIrGenerationExtension : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        // traverse through all of the code
-        moduleFragment.acceptChildren(TreeVisitor(), null)
-        this.javaClass.getResource("/")?.path?.let {
-            // TODO remove hardcode
-            val file = File("/Users/Konstantin.Tretiakov/plugin/index.css")
-            file.createNewFile()
-            file.writeText(it)
-            file.writeText(builder.toString())
+        val builder = StringBuilder()
+        fragment = moduleFragment
+        context = pluginContext
+        // traverse through all the code
+        fragment.acceptChildren(TreeVisitor(), builder)
+
+        val path = fragment.files.first().path.replaceAfterLast(File.separator, "index.css")
+//        val path = "/Users/Konstantin.Tretiakov/plugin/index.css"
+        val file = File(path)
+        file.createNewFile()
+        file.writer().use { writer ->
+            writer.write(builder.toString())
         }
     }
 }

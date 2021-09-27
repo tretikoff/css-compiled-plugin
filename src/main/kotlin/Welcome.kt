@@ -11,17 +11,17 @@ import styled.css
 import styled.styledDiv
 import styled.styledInput
 
-external interface WelcomeProps : RProps {
+external interface WelcomeRProps : RProps {
     var name: String
 }
 
-data class WelcomeState(val name: String) : RState
+data class WelcomeRState(val name: String) : RState
 
 @JsExport
-class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(props) {
+class Welcome(props: WelcomeRProps) : RComponent<WelcomeRProps, WelcomeRState>(props) {
 
     init {
-        state = WelcomeState(props.name)
+        state = WelcomeRState(props.name)
     }
 
     override fun RBuilder.render() {
@@ -45,7 +45,7 @@ class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(prop
                 value = state.name
                 onChangeFunction = { event ->
                     setState(
-                        WelcomeState(name = (event.target as HTMLInputElement).value)
+                        WelcomeRState(name = (event.target as HTMLInputElement).value)
                     )
                 }
             }

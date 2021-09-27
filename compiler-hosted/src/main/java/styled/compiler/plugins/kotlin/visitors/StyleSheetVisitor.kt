@@ -7,14 +7,13 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrDelegatingConstructorCall
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
 import repro.deepcopy.generation.Parameter
-import repro.deepcopy.generation.builder
 
-class StyleSheetVisitor(private var name: String) : IrElementVisitorVoid {
+class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, StringBuilder> {
     private var arguments = mapOf<String, Any?>()
-    override fun visitElement(element: IrElement) {
+    override fun visitElement(element: IrElement, data: StringBuilder) {
         when (element) {
             // TODO check somehow that the constructor is always before other statements
             is IrDelegatingConstructorCall -> {
@@ -29,21 +28,20 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitorVoid {
                 arguments.let {
                     if (it.containsKey(propName)) return
                 }
-                builder.appendLine("$name-$propName {")
-                element.acceptChildren(this, null)
-                builder.appendLine("}")
+                data.appendLine("$name-$propName {")
+                element.acceptChildren(this, data)
+                data.appendLine("}")
             }
             is IrCall -> {
                 val name = element.symbol.descriptor.name.asString()
                 if (name == "css") {
-                    element.acceptChildren(CssVisitor(), null);
+                    element.acceptChildren(CssVisitor(), data);
                 } else {
-                    element.acceptChildren(this, null);
-//                    builder.appendLine(">>>>>$name")
+                    element.acceptChildren(this, data);
                 }
             }
             else -> {
-                element.acceptChildren(this, null)
+                element.acceptChildren(this, data)
             }
         }
     }

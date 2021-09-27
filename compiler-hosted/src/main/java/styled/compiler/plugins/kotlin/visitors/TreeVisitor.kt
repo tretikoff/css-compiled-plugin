@@ -4,14 +4,12 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
-import repro.deepcopy.generation.builder
-import repro.deepcopy.generation.classnameBuilder
+import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssVisitor] to them
  */
-class TreeVisitor : IrElementVisitorVoid {
+class TreeVisitor : IrElementVisitor<Unit, StringBuilder> {
     private var incrementedClassName: Int = 0
         get() {
             return field.also { field++ }
@@ -21,25 +19,23 @@ class TreeVisitor : IrElementVisitorVoid {
             return "ksc-static-$incrementedClassName"
         }
 
-    override fun visitElement(element: IrElement) {
+    override fun visitElement(element: IrElement, data: StringBuilder) {
         if (element is IrCall) {
             element.symbol.signature?.let { sig ->
                 // TODO maybe somehow could fetch and compare called function name
                 if (sig.render().startsWith("styled/css")) {
                     val className = generatedClassName
-                    classnameBuilder.add(className)
-                    builder.appendLine(".$className {")
-                    element.acceptChildren(CssVisitor(), null);
-                    builder.appendLine("}")
+                    data.appendLine(".$className {")
+                    element.acceptChildren(CssVisitor(), data);
+                    data.appendLine("}")
                 }
             }
         } else if (element is IrClass && element.getAllSuperclasses()
                 .find { it.name.asString() == "StyleSheet" } != null
         ) {
-            // TODO process element
-            element.acceptChildren(StyleSheetVisitor(element.name.asString()), null)
+            element.acceptChildren(StyleSheetVisitor(element.name.asString()), data)
             return
         }
-        element.acceptChildren(this, null);
+        element.acceptChildren(this, data);
     }
 }
