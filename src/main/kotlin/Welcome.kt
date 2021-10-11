@@ -20,7 +20,6 @@ data class WelcomeRState(val name: String) : RState
 
 @JsExport
 class Welcome(props: WelcomeRProps) : RComponent<WelcomeRProps, WelcomeRState>(props) {
-
     init {
         state = WelcomeRState(props.name)
     }
@@ -50,3 +49,4 @@ class Welcome(props: WelcomeRProps) : RComponent<WelcomeRProps, WelcomeRState>(p
         }
     }
 }
+

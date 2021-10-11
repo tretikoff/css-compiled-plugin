@@ -4,7 +4,6 @@ import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
 import org.jetbrains.kotlin.com.intellij.openapi.project.Project
 import org.jetbrains.kotlin.compiler.plugin.AbstractCliOption
-import org.jetbrains.kotlin.compiler.plugin.CliOptionProcessingException
 import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration
@@ -14,13 +13,13 @@ class CssCommandLineProcessor : CommandLineProcessor {
     override val pluginId = "styled.compiler.plugins.kotlin"
     override val pluginOptions = listOf<AbstractCliOption>()
 
-    override fun processOption(
-        option: AbstractCliOption,
-        value: String,
-        configuration: CompilerConfiguration
-    ) = when (option) {
-        else -> throw CliOptionProcessingException("Unknown option: ${option.optionName}")
-    }
+//    override fun processOption(
+//        option: AbstractCliOption,
+//        value: String,
+//        configuration: CompilerConfiguration
+//    ) = when (option) {
+//        else -> throw CliOptionProcessingException("Unknown option: ${option.optionName}")
+//    }
 }
 
 class CssComponentRegistrar : ComponentRegistrar {

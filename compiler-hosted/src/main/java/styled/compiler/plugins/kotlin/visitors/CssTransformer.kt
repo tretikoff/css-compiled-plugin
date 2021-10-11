@@ -5,6 +5,13 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import repro.deepcopy.generation.normalize
 
+/** TODO getClassSelector {it::propertyName}
+ * adjacentSibling(CommonMenuStyles.getClassSelector { it::menuSubtitle }) {
+ *   paddingTop = 0.px
+ * }
+ */
+
+/** TODO value.unit -> to value.px */
 class CssTransformer : IrElementTransformer<StringBuilder> {
     override fun visitCall(expression: IrCall, data: StringBuilder): IrElement {
         val name = expression.symbol.descriptor.name.asString()

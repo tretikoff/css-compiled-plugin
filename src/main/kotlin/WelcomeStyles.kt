@@ -13,6 +13,8 @@ object WelcomeStyles : StyleSheet("WelcomeStyles", isStatic = true) {
         margin(vertical = 5.px)
         padding(15.px, 18.px)
 
-        fontSize = 14.px
+        fontSize = 2.unit
     }
 }
+
+val Int.unit get() = (this * 8).px

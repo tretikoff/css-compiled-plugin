@@ -1,16 +1,20 @@
 package styled.compiler.plugins.kotlin.visitors
 
+import org.jetbrains.kotlin.backend.common.ir.allParameters
+import org.jetbrains.kotlin.backend.common.ir.remapTypeParameters
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.builders.declarations.buildFun
+import org.jetbrains.kotlin.ir.declarations.IrDeclarationContainer
+import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
+import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
+import org.jetbrains.kotlin.ir.util.copyTypeAndValueArgumentsFrom
 import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
-import org.jetbrains.kotlin.name.FqName
-import repro.deepcopy.generation.context
+import org.jetbrains.kotlin.name.Name
 import repro.deepcopy.generation.createStyleSheetClassname
 import repro.deepcopy.generation.fragment
 import repro.deepcopy.generation.replacePropertyAccessor
@@ -40,33 +44,55 @@ class DumpVisitor : IrElementVisitor<Unit, StringBuilder> {
     }
 }
 
+fun Name.isPlus(): Boolean {
+    return asString() == "unaryPlus"
+}
+
+fun Name.isGetter(): Boolean {
+    return asString().startsWith("<get")
+}
+
+fun IrFunction.getConstCssFunction(): IrFunctionSymbol {
+    val function = (parent as? IrDeclarationContainer)?.declarations
+        ?.filterIsInstance<IrFunction>()
+        ?.firstOrNull { it.name.isPlus() && it.allParameters.size == 2 && it.allParameters.last().type == fragment.irBuiltins.stringType }
+    return function?.symbol ?: throw IllegalStateException("Couldn't find constant css function implementation")
+}
+
+// TODO transform function
 class StyleSheetTransformer : IrElementTransformer<StringBuilder> {
     private var className: String = ""
     private var name: String = ""
     override fun visitCall(expression: IrCall, data: StringBuilder): IrElement {
-//        data.appendLine(">>>" + expression.attributeOwnerId.dump())
         expression.transformChildren(this, data)
+        var updatedCall = expression
+        if (expression.symbol.descriptor.name.isPlus()) {
+            val callee = expression.symbol.owner
+            val actualFunction = callee.getConstCssFunction().owner as IrSimpleFunction
+            updatedCall = IrCallImpl(
+                symbol = actualFunction.symbol,
+                origin = expression.origin,
+                startOffset = expression.startOffset,
+                endOffset = expression.endOffset,
+                type = expression.type.remapTypeParameters(callee, actualFunction),
+                typeArgumentsCount = expression.typeArgumentsCount,
+                valueArgumentsCount = expression.valueArgumentsCount,
+                superQualifierSymbol = expression.superQualifierSymbol
+            )
+            updatedCall.copyTypeAndValueArgumentsFrom(expression)
+            updatedCall.extensionReceiver?.let {
+                if (it is IrCall) {
+                    updatedCall.extensionReceiver = IrConstImpl(
+                        it.startOffset, it.endOffset, fragment.irBuiltins.stringType, IrConstKind.String, className
+                    )
+                }
+            }
+        }
         val descName = expression.symbol.descriptor.name.asString()
-        if (expression.symbol.descriptor.name.asString().startsWith("<get")) {
+        if (expression.symbol.descriptor.name.isGetter()) {
             className = createStyleSheetClassname(name, descName.replacePropertyAccessor())
         }
-//        expression.dispatchReceiver?.let {
-//            if (it is IrGetValue) {
-//                data.appendLine(it.dump())
-//                IrCallImpl()
-//            expression.dispatchReceiver =
-//                context.referenceFunctions(FqName("kotlin.time.TimeSource.markNow"))
-//                    .single()
-//            }
-//        }
-//        expression.extensionReceiver?.let {
-//            if (it is IrCall) {
-//                expression.extensionReceiver = IrConstImpl(
-//                    it.startOffset, it.endOffset, fragment.irBuiltins.stringType, IrConstKind.String, className
-//                )
-//            }
-//        }
-        return expression
+        return updatedCall
     }
 
     override fun visitGetObjectValue(expression: IrGetObjectValue, data: StringBuilder): IrExpression {
