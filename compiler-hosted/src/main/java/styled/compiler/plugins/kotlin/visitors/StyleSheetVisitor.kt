@@ -10,12 +10,12 @@ import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
 import repro.deepcopy.generation.Parameter
+import repro.deepcopy.generation.createStyleSheetClassname
 
 class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, StringBuilder> {
     private var arguments = mapOf<String, Any?>()
     override fun visitElement(element: IrElement, data: StringBuilder) {
         when (element) {
-            // TODO check somehow that the constructor is always before other statements
             is IrDelegatingConstructorCall -> {
                 arguments = element.getArgumentsWithIr()
                     // Skipping non-constant values as don't know how to evaluate them right now
@@ -28,14 +28,14 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
                 arguments.let {
                     if (it.containsKey(propName)) return
                 }
-                data.appendLine("$name-$propName {")
+                data.appendLine(".${createStyleSheetClassname(name, propName)} {")
                 element.acceptChildren(this, data)
                 data.appendLine("}")
             }
             is IrCall -> {
                 val name = element.symbol.descriptor.name.asString()
                 if (name == "css") {
-                    element.acceptChildren(CssVisitor(), data);
+                    element.transformChildren(CssTransformer(), data);
                 } else {
                     element.acceptChildren(this, data);
                 }

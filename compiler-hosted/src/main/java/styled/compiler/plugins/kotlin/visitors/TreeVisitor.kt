@@ -3,11 +3,12 @@ package styled.compiler.plugins.kotlin.visitors
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 
 /**
- * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssVisitor] to them
+ * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
 class TreeVisitor : IrElementVisitor<Unit, StringBuilder> {
     private var incrementedClassName: Int = 0
@@ -26,7 +27,7 @@ class TreeVisitor : IrElementVisitor<Unit, StringBuilder> {
                 if (sig.render().startsWith("styled/css")) {
                     val className = generatedClassName
                     data.appendLine(".$className {")
-                    element.acceptChildren(CssVisitor(), data);
+                    element.transformChildren(CssTransformer(), data);
                     data.appendLine("}")
                 }
             }

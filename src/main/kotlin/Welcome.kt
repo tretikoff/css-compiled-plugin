@@ -1,4 +1,5 @@
-import kotlinx.css.*
+import kotlinx.css.Align
+import kotlinx.css.alignItems
 import kotlinx.html.InputType
 import kotlinx.html.js.onChangeFunction
 import org.w3c.dom.HTMLInputElement
@@ -28,9 +29,6 @@ class Welcome(props: WelcomeRProps) : RComponent<WelcomeRProps, WelcomeRState>(p
         styledDiv {
             css {
                 +"some-external-classname"
-                color = Color.black
-                backgroundColor = Color("#123456")
-                paddingTop = 12.px
                 +WelcomeStyles.textContainer
             }
             +"Hello, ${state.name}"
