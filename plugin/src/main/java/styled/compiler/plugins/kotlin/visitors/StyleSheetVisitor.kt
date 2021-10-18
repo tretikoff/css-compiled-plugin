@@ -33,9 +33,9 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
                 data.appendLine("}")
             }
             is IrCall -> {
-                val name = element.symbol.descriptor.name.asString()
+                val name = element.symbol.owner.name.asString()
                 if (name == "css") {
-                    element.transformChildren(CssTransformer(), data);
+                    element.transformChildren(CssTransformer(), data)
                 } else {
                     element.acceptChildren(this, data);
                 }

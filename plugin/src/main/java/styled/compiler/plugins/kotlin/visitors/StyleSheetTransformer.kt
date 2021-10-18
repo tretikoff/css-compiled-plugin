@@ -11,13 +11,13 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.util.copyTypeAndValueArgumentsFrom
-import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
-import org.jetbrains.kotlin.name.Name
 import repro.deepcopy.generation.createStyleSheetClassname
 import repro.deepcopy.generation.fragment
 import repro.deepcopy.generation.replacePropertyAccessor
+import styled.compiler.plugins.kotlin.isGetter
+import styled.compiler.plugins.kotlin.isPlus
+import styled.compiler.plugins.kotlin.isPropertyGetter
 
 /**
  * Inserts classname instead of adding and injecting stylesheet
@@ -38,36 +38,24 @@ $this: CONST String type=kotlin.String value="WelcomeStyles-textContainer"
 
  */
 
-class DumpVisitor : IrElementVisitor<Unit, StringBuilder> {
-    override fun visitElement(element: IrElement, data: StringBuilder) {
-        data.appendLine(element.dump())
-    }
-}
+// TODO get function names from kotlin-css from runtime
 
-fun Name.isPlus(): Boolean {
-    return asString() == "unaryPlus"
-}
 
-fun Name.isGetter(): Boolean {
-    return asString().startsWith("<get")
-}
-
-fun IrFunction.getConstCssFunction(): IrFunctionSymbol {
-    val function = (parent as? IrDeclarationContainer)?.declarations
-        ?.filterIsInstance<IrFunction>()
-        ?.firstOrNull { it.name.isPlus() && it.allParameters.size == 2 && it.allParameters.last().type == fragment.irBuiltins.stringType }
-    return function?.symbol ?: throw IllegalStateException("Couldn't find constant css function implementation")
-}
-
-// TODO transform function
 class StyleSheetTransformer : IrElementTransformer<StringBuilder> {
+    private fun IrFunction.getConstCssFunction(): IrFunctionSymbol {
+        val function = (parent as? IrDeclarationContainer)?.declarations
+            ?.filterIsInstance<IrFunction>()
+            ?.firstOrNull { it.isPlus() && it.allParameters.size == 2 && it.allParameters.last().type == fragment.irBuiltins.stringType }
+        return function?.symbol ?: throw IllegalStateException("Couldn't find constant css function implementation")
+    }
+
     private var className: String = ""
     private var name: String = ""
     override fun visitCall(expression: IrCall, data: StringBuilder): IrElement {
         expression.transformChildren(this, data)
+        val callee = expression.symbol.owner
         var updatedCall = expression
-        if (expression.symbol.descriptor.name.isPlus()) {
-            val callee = expression.symbol.owner
+        if (callee.isPlus()) {
             val actualFunction = callee.getConstCssFunction().owner as IrSimpleFunction
             updatedCall = IrCallImpl(
                 symbol = actualFunction.symbol,
@@ -82,22 +70,31 @@ class StyleSheetTransformer : IrElementTransformer<StringBuilder> {
             updatedCall.copyTypeAndValueArgumentsFrom(expression)
             updatedCall.extensionReceiver?.let {
                 if (it is IrCall) {
+                    if (it.symbol.owner.isPropertyGetter()) {
+                        (it.extensionReceiver as? IrGetObjectValue)?.let { styleSheetObj ->
+                            name = styleSheetObj.symbol.owner.name.asString()
+                        }
+                    }
                     updatedCall.extensionReceiver = IrConstImpl(
                         it.startOffset, it.endOffset, fragment.irBuiltins.stringType, IrConstKind.String, className
                     )
                 }
             }
         }
-        val descName = expression.symbol.descriptor.name.asString()
-        if (expression.symbol.descriptor.name.isGetter()) {
-            className = createStyleSheetClassname(name, descName.replacePropertyAccessor())
+        val owner = expression.symbol.owner
+        if (owner.isGetter()) {
+            className = createStyleSheetClassname(name, owner.name.asString().replacePropertyAccessor())
         }
         return updatedCall
     }
 
+    override fun visitPropertyReference(expression: IrPropertyReference, data: StringBuilder): IrElement {
+        className = createStyleSheetClassname(name, expression.symbol.owner.name.asString())
+        return expression;
+    }
+
     override fun visitGetObjectValue(expression: IrGetObjectValue, data: StringBuilder): IrExpression {
-        name = expression.symbol.descriptor.name.asString()
+        name = expression.symbol.owner.name.asString()
         return expression
-//        return IrConstImpl(expression.startOffset, expression.endOffset, fragment.irBuiltins.stringType, IrConstKind.String, className)
     }
 }

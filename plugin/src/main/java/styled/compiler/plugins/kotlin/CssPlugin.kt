@@ -27,7 +27,6 @@ class CssComponentRegistrar : ComponentRegistrar {
         project: MockProject,
         configuration: CompilerConfiguration
     ) {
-        println("<><><>")
         registerProjectExtensions(
             project as Project,
             configuration

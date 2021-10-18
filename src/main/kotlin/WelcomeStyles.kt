@@ -15,6 +15,9 @@ object WelcomeStyles : StyleSheet("WelcomeStyles", isStatic = true) {
 
         fontSize = 2.unit
     }
+    val textProperty by css {
+        alignContent = Align.end
+    }
 }
 
 val Int.unit get() = (this * 8).px

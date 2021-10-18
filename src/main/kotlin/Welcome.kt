@@ -1,40 +1,46 @@
-import kotlinx.css.Align
-import kotlinx.css.alignItems
+import kotlinx.css.*
 import kotlinx.html.InputType
 import kotlinx.html.js.onChangeFunction
 import org.w3c.dom.HTMLInputElement
+import react.Props
 import react.RBuilder
 import react.RComponent
-import react.RProps
-import react.RState
+import react.State
 import react.dom.attrs
-import styled.css
-import styled.styledDiv
-import styled.styledInput
+import runtime.html.CommonTheme.textColor
+import styled.*
 
-external interface WelcomeRProps : RProps {
+external interface WelcomeProps : Props {
     var name: String
 }
 
-data class WelcomeRState(val name: String) : RState
+data class WelcomeState(val name: String) : State
 
 @JsExport
-class Welcome(props: WelcomeRProps) : RComponent<WelcomeRProps, WelcomeRState>(props) {
+class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(props) {
     init {
-        state = WelcomeRState(props.name)
+        state = WelcomeState(props.name)
     }
 
     override fun RBuilder.render() {
+        val listItemActiveBackgroundColor = Color("#e0eeff")
         styledDiv {
             css {
                 +"some-external-classname"
                 +WelcomeStyles.textContainer
+                backgroundColor = listItemActiveBackgroundColor
+                color = textColor
+                marginLeft = 3.px
             }
             +"Hello, ${state.name}"
         }
         styledInput {
             css {
-                +WelcomeStyles.textInput
+                +"#${WelcomeStyles.getClassName { it::textProperty }}"
+                +WelcomeStyles.getClassSelector { it::textInput }
+//                adjacentSibling(WelcomeStyles.getClassSelector { it::textInput }) {
+//                    paddingTop = 0.px
+//                }
                 alignItems = Align.flexEnd
             }
             attrs {
@@ -42,7 +48,7 @@ class Welcome(props: WelcomeRProps) : RComponent<WelcomeRProps, WelcomeRState>(p
                 value = state.name
                 onChangeFunction = { event ->
                     setState(
-                        WelcomeRState(name = (event.target as HTMLInputElement).value)
+                        WelcomeState(name = (event.target as HTMLInputElement).value)
                     )
                 }
             }
