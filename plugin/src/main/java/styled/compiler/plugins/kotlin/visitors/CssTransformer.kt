@@ -47,9 +47,10 @@ class CssTransformer(val className: String = "", val indent: String = "  ") : Ir
 //                    }
 //                }
         } else {
-            data.append(indent, owner.name.asString().normalize(), ": ")
-            expression.acceptChildren(PropertyVisitor(), data)
-            data.appendLine(";")
+            val name = owner.name.asString().normalize()
+            val propBuilder = StringBuilder()
+            expression.acceptChildren(PropertyVisitor(), propBuilder)
+            data.appendLine("$indent$name:$propBuilder;")
         }
         return expression
     }

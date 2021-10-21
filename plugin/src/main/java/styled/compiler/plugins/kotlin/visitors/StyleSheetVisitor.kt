@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
 import repro.deepcopy.generation.Parameter
 import repro.deepcopy.generation.createStyleSheetClassname
+import styled.compiler.plugins.kotlin.name
 
 class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, StringBuilder> {
     private var arguments = mapOf<String, Any?>()
@@ -33,8 +34,7 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
                 data.appendLine("}")
             }
             is IrCall -> {
-                val name = element.symbol.owner.name.asString()
-                if (name == "css") {
+                if (element.name == "css") {
                     element.transformChildren(CssTransformer(), data)
                 } else {
                     element.acceptChildren(this, data);

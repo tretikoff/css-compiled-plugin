@@ -1,21 +1,35 @@
 package styled.compiler.plugins.kotlin
 
+import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
+import org.jetbrains.kotlin.ir.util.getPackageFragment
 
 fun IrCall.isCssCall(): Boolean {
     return symbol.signature?.render()?.startsWith("styled/css") ?: false
 }
 
+val IrCall.name: String
+    get() = symbol.owner.name.asString()
+
+val IrElement.packageStr: String
+    get() = getPackageFragment()?.fqName?.asString() ?: ""
+
+fun IrElement.isInCssLib() = packageStr == "kotlinx.css"
+
 fun IrCall.isSetCustomProperty(): Boolean {
-    return symbol.owner.name.asString() == "setCustomProperty"
+    return name == "setCustomProperty"
 }
 
 fun IrCall.isToColorProperty(): Boolean {
-    return symbol.owner.name.asString() == "toColorProperty"
+    return name == "toColorProperty"
+}
+
+fun IrCall.isMultiply(): Boolean {
+    return name == "times";
 }
 
 fun IrClass.isStyleSheet(): Boolean {
@@ -26,11 +40,11 @@ fun IrFunction.isPlus(): Boolean {
     return name.asString() == "unaryPlus"
 }
 
-fun IrSimpleFunction.isGetter(): Boolean {
+fun IrFunction.isGetter(): Boolean {
     return name.asString().startsWith("<get")
 }
 
-fun IrSimpleFunction.isPropertyGetter(): Boolean {
+fun IrFunction.isPropertyGetter(): Boolean {
     val propertyAttributes = arrayOf("getClassName", "getClassSelector")
     return propertyAttributes.any { it == name.asString() }
 }
