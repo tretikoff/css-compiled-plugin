@@ -13,7 +13,7 @@ object WelcomeStyles : StyleSheet("WelcomeStyles", isStatic = true) {
         margin(vertical = 5.px)
         padding(15.px, 18.px)
 
-        fontSize = 2.unit
+        fontSize = 2.unit // TODO
     }
     val textProperty by css {
         alignContent = Align.end

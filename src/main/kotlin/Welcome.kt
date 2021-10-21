@@ -1,3 +1,4 @@
+import framework.x.XTheme
 import kotlinx.css.*
 import kotlinx.html.InputType
 import kotlinx.html.js.onChangeFunction
@@ -31,6 +32,7 @@ class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(prop
                 backgroundColor = listItemActiveBackgroundColor
                 color = textColor
                 marginLeft = 3.px
+                borderColor = XTheme.theme.skeletonBackgroundColor
             }
             +"Hello, ${state.name}"
         }
@@ -40,7 +42,7 @@ class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(prop
                 +WelcomeStyles.getClassSelector { it::textInput }
 //                adjacentSibling(WelcomeStyles.getClassSelector { it::textInput }) {
 //                    paddingTop = 0.px
-//                }
+//                } // TODO
                 alignItems = Align.flexEnd
             }
             attrs {

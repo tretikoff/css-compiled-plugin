@@ -4,16 +4,20 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrVariable
-import org.jetbrains.kotlin.ir.util.isObject
-import org.jetbrains.kotlin.ir.util.packageFqName
+import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.util.dump
+import org.jetbrains.kotlin.ir.util.getPackageFragment
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
+import repro.deepcopy.generation.writeDump
+import styled.compiler.plugins.kotlin.isSetCustomProperty
 
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
-class GlobalVariables(private val prefix: String = "") : IrElementVisitor<Unit, StringBuilder> {
+class GlobalVariablesVisitor(private val prefix: String = "") : IrElementVisitor<Unit, StringBuilder> {
     companion object {
         val varValues = mutableMapOf<String, String>()
+        val cssVarValues = mutableMapOf<String, String>()
     }
 
     override fun visitElement(element: IrElement, data: StringBuilder) {
@@ -25,20 +29,16 @@ class GlobalVariables(private val prefix: String = "") : IrElementVisitor<Unit, 
                 varValues[name] = builder.toString()
             }
             is IrField -> {
+                val pr = element.getPackageFragment()?.fqName ?: ""
                 val name = element.name.asString()
                 val builder = StringBuilder()
                 element.acceptChildren(PropertyVisitor(), builder)
-                varValues["$prefix.$name"] = builder.toString()
+                varValues["$pr$prefix.$name"] = builder.toString()
             }
             is IrClass -> {
-                if (element.isObject || element.isCompanion) {
-                    // if element is object we store prefix to differentiate variables from different objects.
-                    // TODO support prefixes for regular variables
-                    val name = "${element.packageFqName}.${element.name}"
-                    element.acceptChildren(GlobalVariables("$prefix.$name"), data)
-                } else {
-                    element.acceptChildren(this, data)
-                }
+                // TODO support prefixes for regular variables - something like package.Class1.Class2.(...).funName1.(...).varName
+                val name = element.name.asStringStripSpecialMarkers()
+                element.acceptChildren(GlobalVariablesVisitor("$prefix.$name"), data)
             }
             else -> {
                 element.acceptChildren(this, data)

@@ -7,15 +7,9 @@ import repro.deepcopy.generation.normalize
 import styled.compiler.plugins.kotlin.isCssCall
 import styled.compiler.plugins.kotlin.isPlus
 
-/** TODO getClassSelector {it::propertyName}
- * adjacentSibling(CommonMenuStyles.getClassSelector { it::menuSubtitle }) {
- *   paddingTop = 0.px
- * }
- */
-
 /** TODO value.unit -> to value.px */
 
-class CssTransformer(val className: String = "") : IrElementTransformer<StringBuilder> {
+class CssTransformer(val className: String = "", val indent: String = "  ") : IrElementTransformer<StringBuilder> {
     override fun visitCall(expression: IrCall, data: StringBuilder): IrElement {
         val owner = expression.symbol.owner
         if (owner.isPlus()) {
@@ -23,7 +17,7 @@ class CssTransformer(val className: String = "") : IrElementTransformer<StringBu
         } else if (expression.isCssCall()) {
             expression.transformChildren(this, data)
             // TODO get all the classnames from children to one string
-            // TODO change the call of children of css function to unary plus call
+            // TODO change the call of children of css function to unary plus call with this string
 //            data.appendLine(expression.dump())
 //            var updatedCall = expression
 //            callee.symbol.owner.todo(data)
@@ -53,7 +47,7 @@ class CssTransformer(val className: String = "") : IrElementTransformer<StringBu
 //                    }
 //                }
         } else {
-            data.append(owner.name.asString().normalize(), ":")
+            data.append(indent, owner.name.asString().normalize(), ": ")
             expression.acceptChildren(PropertyVisitor(), data)
             data.appendLine(";")
         }

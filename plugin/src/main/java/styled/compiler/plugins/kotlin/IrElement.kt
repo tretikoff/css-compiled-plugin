@@ -10,6 +10,14 @@ fun IrCall.isCssCall(): Boolean {
     return symbol.signature?.render()?.startsWith("styled/css") ?: false
 }
 
+fun IrCall.isSetCustomProperty(): Boolean {
+    return symbol.owner.name.asString() == "setCustomProperty"
+}
+
+fun IrCall.isToColorProperty(): Boolean {
+    return symbol.owner.name.asString() == "toColorProperty"
+}
+
 fun IrClass.isStyleSheet(): Boolean {
     return getAllSuperclasses().find { it.name.asString() == "StyleSheet" } != null
 }

@@ -1,5 +1,6 @@
 package styled.compiler.plugins.kotlin.visitors
 
+import kotlinx.css.toCustomProperty
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.backend.js.utils.asString
 import org.jetbrains.kotlin.ir.declarations.IrFunction
@@ -9,6 +10,7 @@ import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetEnumValueImpl
+import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
@@ -16,6 +18,8 @@ import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
 import repro.deepcopy.generation.getConstValues
 import repro.deepcopy.generation.normalize
 import repro.deepcopy.generation.replacePropertyAccessor
+import repro.deepcopy.generation.writeDump
+import styled.compiler.plugins.kotlin.isToColorProperty
 
 // TODO get computable values like (8 * 8).px
 // We can check if return is LinearDimension
@@ -23,23 +27,37 @@ import repro.deepcopy.generation.replacePropertyAccessor
 //        body.statements.forEach {
 //            builder.appendLine(it.dump())
 //        }
-//        }
+//     }
+
+// TODO get string builder values
 class PropertyVisitor : IrElementVisitor<Unit, StringBuilder> {
     private fun IrCall.runtimeDeclaration(): String {
         val values = getConstValues()
 
+        if (isToColorProperty()) {
+            extensionReceiver?.let { it ->
+                val builder = StringBuilder()
+                it.accept(this@PropertyVisitor, builder)
+                return builder.toString().toCustomProperty()
+            }
+        }
         val function: IrFunction = symbol.owner
         val receiver = function.dispatchReceiverParameter
         val name = function.name.asString().replacePropertyAccessor()
-        // get variable from global variables
-        if (function.isGetter && receiver != null) {
-            val key = ".${receiver.type.asString()}.${name}"
-            val varValue = GlobalVariables.varValues[key]
-            if (varValue != null) return varValue
+
+        // get variable value from global variables
+        if (function.isGetter) {
+            if (receiver != null) {
+                val key = "${receiver.type.asString()}.${name}"
+                val varValue = GlobalVariablesVisitor.varValues[key]
+                if (varValue != null) return varValue
+            }
         }
-        val declaration = when (val normalized = name.normalize()) {
+        val declaration = when (val normalizedName = name.normalize()) {
             "rgb" -> "rgb(${values.joinToString(", ")})"
-            else -> " ${values.firstOrNull() ?: ""}$normalized"
+            else -> {
+                "${values.firstOrNull() ?: ""}$normalizedName"
+            }
         }
         return declaration
     }
@@ -66,12 +84,12 @@ class PropertyVisitor : IrElementVisitor<Unit, StringBuilder> {
                 if (declaration.isEmpty()) {
                     element.acceptChildren(this, data)
                 } else {
-                    data.append(element.runtimeDeclaration())
+                    data.append(declaration)
                 }
             }
             is IrGetValue -> {
                 val varName = element.symbol.owner.name.asString()
-                val value = GlobalVariables.varValues[varName]
+                val value = GlobalVariablesVisitor.varValues[varName]
                 if (value != null) {
                     data.append(value)
                 } else {

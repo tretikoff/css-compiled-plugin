@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
-import styled.compiler.plugins.kotlin.visitors.GlobalVariables
+import styled.compiler.plugins.kotlin.visitors.GlobalVariablesVisitor
 import styled.compiler.plugins.kotlin.visitors.TreeVisitor
 import java.io.File
 
@@ -46,13 +46,20 @@ class CssIrGenerationExtension : IrGenerationExtension {
         fragment = moduleFragment
         context = pluginContext
         // traverse through all the code
-        fragment.acceptChildren(GlobalVariables(), builder)
-        GlobalVariables.varValues.entries.forEach { (name, value) ->
+        fragment.acceptChildren(GlobalVariablesVisitor(), builder)
+        GlobalVariablesVisitor.varValues.entries.forEach { (name, value) ->
             ">>>$name  <<>>  $value<<<<".writeDump()
         }
         fragment.acceptChildren(TreeVisitor(), builder)
 
-        builder.dumpToFile("index.css")
+        // Css vars collecting
+        // TODO not dump everything into the root
+        val cssVarBuilder = StringBuilder(":root {\n")
+        GlobalVariablesVisitor.cssVarValues.entries.forEach { (name, value) -> cssVarBuilder.appendLine("--$name: $value;") }
+        cssVarBuilder.appendLine("}")
+
+
+        cssVarBuilder.appendLine(builder).dumpToFile("index.css")
         dumpBuilder.dumpToFile("dump.log")
     }
 
@@ -62,7 +69,7 @@ class CssIrGenerationExtension : IrGenerationExtension {
         val file = File(path)
         file.createNewFile()
         file.writer().use { writer ->
-            writer.write(this.toString())
+            writer.write(toString())
         }
     }
 }
