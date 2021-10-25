@@ -4,6 +4,7 @@ import kotlinx.css.hyphenize
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.declarations.path
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
@@ -47,9 +48,9 @@ class CssIrGenerationExtension : IrGenerationExtension {
         context = pluginContext
         // traverse through all the code
         fragment.acceptChildren(GlobalVariablesVisitor(), builder)
-        GlobalVariablesVisitor.varValues.entries.forEach { (name, value) ->
-            ">>>$name  <<>>  $value<<<<".writeDump()
-        }
+//        GlobalVariablesVisitor.varValues.entries.forEach { (name, value) ->
+//            ">>>$name  <<>>  $value<<<<".writeDump()
+//        }
         fragment.acceptChildren(TreeVisitor(), builder)
 
         // Css vars collecting
@@ -64,8 +65,8 @@ class CssIrGenerationExtension : IrGenerationExtension {
     }
 
     private fun StringBuilder.dumpToFile(filename: String) {
-//        val path = fragment.files.first().path.replaceAfterLast(File.separator, filename)
-        val path = "/Users/Konstantin.Tretiakov/plugin/$filename"
+        val path = fragment.files.first().path.replaceAfterLast(File.separator, filename)
+//        val path = "/Users/Konstantin.Tretiakov/plugin/$filename"
         val file = File(path)
         file.createNewFile()
         file.writer().use { writer ->

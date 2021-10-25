@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
 import org.jetbrains.kotlin.ir.expressions.IrErrorExpression
 import org.jetbrains.kotlin.ir.expressions.IrReturn
-import org.jetbrains.kotlin.ir.util.dump
+
 import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import repro.deepcopy.generation.normalize
@@ -21,9 +21,6 @@ class SimpleExpressionVisitor(private val argument: Any?) : IrElementVisitor<Uni
     override fun visitFunction(declaration: IrFunction, data: StringBuilder) {
         declaration.body?.let { body ->
             body.statements.forEach {
-                if (it !is IrErrorExpression) {
-                    it.dump().writeDump()
-                }
                 if (it is IrReturn) {
                     return it.acceptChildren(this, data)
                 }
@@ -32,10 +29,7 @@ class SimpleExpressionVisitor(private val argument: Any?) : IrElementVisitor<Uni
     }
 
     override fun visitCall(expression: IrCall, data: StringBuilder) {
-        if (expression.isMultiply()) {
-            expression.getValueArgument(0)?.dump()?.writeDump()
-            expression.getValueArgument(1)?.dump()?.writeDump()
-        } else {
+        if (!expression.isMultiply()) {
             expression.dispatchReceiver?.acceptChildren(this, data)
             expression.extensionReceiver?.acceptChildren(this, data)
         }

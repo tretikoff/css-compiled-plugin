@@ -65,9 +65,7 @@ class PropertyVisitor : IrElementVisitor<Unit, StringBuilder> {
                 if (rec is IrConst<*>) {
                     val builder = StringBuilder()
                     function.accept(SimpleExpressionVisitor(rec.value), builder)
-                    if (builder.isNotEmpty()) return builder.toString().also {
-                        ">>>>$it".writeDump()
-                    }
+                    if (builder.isNotEmpty()) return builder.toString()
                 }
             }
         }
