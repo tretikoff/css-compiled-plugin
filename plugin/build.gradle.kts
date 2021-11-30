@@ -2,10 +2,6 @@ plugins {
     id("kotlin")
 }
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.5.31")
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")

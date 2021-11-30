@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.ir.backend.js.utils.asString
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.*
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
-import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
@@ -14,7 +13,6 @@ import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
 import repro.deepcopy.generation.getConstValues
 import repro.deepcopy.generation.normalize
 import repro.deepcopy.generation.replacePropertyAccessor
-import repro.deepcopy.generation.writeDump
 import styled.compiler.plugins.kotlin.isInCssLib
 import styled.compiler.plugins.kotlin.isToColorProperty
 
@@ -69,11 +67,16 @@ class PropertyVisitor : IrElementVisitor<Unit, StringBuilder> {
                 }
             }
         }
-        val declaration = when (val normalizedName = name.normalize()) {
+        val declaration = when (val propertyName = name.toPropertyName()) {
             "rgb" -> "rgb(${values.joinToString(", ")})"
-            else -> "${values.firstOrNull() ?: ""}$normalizedName" // TODO
+            else -> "${values.firstOrNull() ?: ""}$propertyName" // TODO
         }
         return declaration
+    }
+
+    private fun String.toPropertyName(): String {
+        val normalized = normalize()
+        return if (normalized == "pct") "%" else normalized
     }
 
     override fun visitCall(expression: IrCall, data: StringBuilder) {

@@ -42,7 +42,7 @@ class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(prop
                 +WelcomeStyles.getClassSelector { it::textInput }
 //                adjacentSibling(WelcomeStyles.getClassSelector { it::textInput }) {
 //                    paddingTop = 0.px
-//                } // TODO
+//                }
                 alignItems = Align.flexEnd
             }
             attrs {

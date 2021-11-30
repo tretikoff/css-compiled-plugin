@@ -4,7 +4,6 @@ import kotlinx.css.hyphenize
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.ir.declarations.path
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
@@ -41,16 +40,16 @@ fun String.writeDump() {
     dumpBuilder.appendLine(this)
 }
 
-class CssIrGenerationExtension : IrGenerationExtension {
+class CssIrGenerationExtension(private val resourcesPath: String) : IrGenerationExtension {
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
         val builder = StringBuilder()
         fragment = moduleFragment
         context = pluginContext
         // traverse through all the code
         fragment.acceptChildren(GlobalVariablesVisitor(), builder)
-//        GlobalVariablesVisitor.varValues.entries.forEach { (name, value) ->
-//            ">>>$name  <<>>  $value<<<<".writeDump()
-//        }
+        GlobalVariablesVisitor.varValues.entries.forEach { (name, value) ->
+            "$name:$value".writeDump()
+        }
         fragment.acceptChildren(TreeVisitor(), builder)
 
         // Css vars collecting
@@ -64,11 +63,15 @@ class CssIrGenerationExtension : IrGenerationExtension {
         dumpBuilder.dumpToFile("dump.log")
     }
 
+    private fun getDumpFile(filename: String): File {
+        return File(resourcesPath + File.separator + filename).also {
+            it.parentFile.mkdirs()
+            it.createNewFile()
+        }
+    }
+
     private fun StringBuilder.dumpToFile(filename: String) {
-        val path = fragment.files.first().path.replaceAfterLast(File.separator, filename)
-//        val path = "/Users/Konstantin.Tretiakov/plugin/$filename"
-        val file = File(path)
-        file.createNewFile()
+        val file = getDumpFile(filename)
         file.writer().use { writer ->
             writer.write(toString())
         }

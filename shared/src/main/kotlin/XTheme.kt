@@ -2,7 +2,6 @@ package framework.x
 
 import kotlinx.css.*
 import runtime.html.CommonTheme
-import styled.injectGlobal
 
 /**
  * Theme for platform-level components.
@@ -36,16 +35,6 @@ interface XTheme {
         override val skeletonBackgroundColor = "skeleton-background-color-dark".toColorProperty()
         override val skeletonBackgroundColorRaw = whiteAlpha(0.05)
     }
-}
-
-fun injectCssProperties(default: RuleSet, dark: RuleSet) {
-    val styles = CssBuilder(allowClasses = false).apply {
-        root {
-            default()
-        }
-    }
-
-    injectGlobal(styles)
 }
 
 // `styles` are applied when the dark theme is enabled

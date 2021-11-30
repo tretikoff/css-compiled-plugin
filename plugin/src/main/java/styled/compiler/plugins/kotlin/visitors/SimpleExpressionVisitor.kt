@@ -4,13 +4,10 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConst
-import org.jetbrains.kotlin.ir.expressions.IrErrorExpression
 import org.jetbrains.kotlin.ir.expressions.IrReturn
-
 import org.jetbrains.kotlin.ir.util.statements
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import repro.deepcopy.generation.normalize
-import repro.deepcopy.generation.writeDump
 import styled.compiler.plugins.kotlin.isGetter
 import styled.compiler.plugins.kotlin.isInCssLib
 import styled.compiler.plugins.kotlin.isMultiply
