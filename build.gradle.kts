@@ -38,7 +38,6 @@ dependencies {
     implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:17.0.2-pre.256-kotlin-1.5.31")
     implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:5.3.1-pre.256-kotlin-1.5.31")
     implementation(project(":shared"))
-    kotlinCompilerPluginClasspath(project(":plugin"))
     testImplementation(kotlin("test"))
 //    implementation("org.jetbrains.kotlin-wrappers:kotlin-css:1.0.0-pre.256-kotlin-1.5.31")
 //    api(npm("inline-style-prefixer", "^6.0.0"))

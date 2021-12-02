@@ -8,10 +8,10 @@ import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import java.io.File
 import java.nio.file.Paths
 
-
 class CssGradlePlugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project): Unit = with(target) {
-        extensions.create("template", CssGradleExtension::class.java)
+        val sharedModel = mapOf("path" to ":plugin") // TODO add from maven when published
+        dependencies.add("kotlinCompilerPluginClasspath", dependencies.project(sharedModel))
     }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true
