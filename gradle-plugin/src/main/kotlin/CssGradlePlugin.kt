@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import java.io.File
+import java.nio.file.Paths
 
 
 class CssGradlePlugin : KotlinCompilerPluginSupportPlugin {
@@ -23,32 +24,33 @@ class CssGradlePlugin : KotlinCompilerPluginSupportPlugin {
         version = "0.1"
     )
 
-    val Project.resourceTempFile: String
+    private val Project.savedVarPath: String
+        get() = Paths.get(buildDir.absolutePath, "tmp", "cssVars", "css.tmp").toString()
+
+    private val KotlinCompilation<*>.resourcesPath: String
         get() {
-            return resources.text.fromString("").asFile().absolutePath
+            val sourceSet = allKotlinSourceSets.firstOrNull {
+                it.name == SourceSet.MAIN_SOURCE_SET_NAME
+            }
+            val resourcesDir = (sourceSet?.resources ?: defaultSourceSet.resources).firstOrNull()
+                ?.run { if (isFile) parentFile else this }
+                ?: defaultSourceSet.kotlin.srcDirs.first()
+                    .run { File(parent, "resources").apply { mkdirs() } }
+            return resourcesDir.absolutePath
         }
 
     override fun applyToCompilation(
         kotlinCompilation: KotlinCompilation<*>
     ): Provider<List<SubpluginOption>> {
         val project = kotlinCompilation.target.project
-        val sourceSet = kotlinCompilation.allKotlinSourceSets.firstOrNull {
-            it.name == SourceSet.MAIN_SOURCE_SET_NAME
-        }
-
-        val resourcesDir = (sourceSet?.resources ?: kotlinCompilation.defaultSourceSet.resources).firstOrNull()
-            ?.run { if (isFile) parentFile else this }
-            ?: kotlinCompilation.defaultSourceSet.kotlin.srcDirs.first()
-                .run { File(parent, "resources").apply { mkdirs() } }
         return project.provider {
             val subprojects = project.subprojects
                 .filter { it.plugins.hasPlugin(this.javaClass) }
-                .joinToString { it.path }
-            val subprojectTempFiles = project.subprojects.joinToString { it.resourceTempFile }
-            println(subprojectTempFiles)
+            val subprojectTempFiles = subprojects.joinToString { it.savedVarPath }
             listOf(
-                SubpluginOption(key = "css_file", value = resourcesDir.absolutePath),
-                SubpluginOption(key = "subprojects", value = subprojects),
+                SubpluginOption(key = "var_file", value = project.savedVarPath),
+                SubpluginOption(key = "subprojects", value = subprojectTempFiles),
+                SubpluginOption(key = "resources", value = kotlinCompilation.resourcesPath),
             )
         }
     }

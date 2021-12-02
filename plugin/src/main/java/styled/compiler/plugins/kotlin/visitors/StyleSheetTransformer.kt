@@ -12,9 +12,9 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
 import org.jetbrains.kotlin.ir.util.copyTypeAndValueArgumentsFrom
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
-import repro.deepcopy.generation.createStyleSheetClassname
-import repro.deepcopy.generation.fragment
-import repro.deepcopy.generation.replacePropertyAccessor
+import styled.compiler.plugins.kotlin.createStyleSheetClassname
+import styled.compiler.plugins.kotlin.fragment
+import styled.compiler.plugins.kotlin.replacePropertyAccessor
 import styled.compiler.plugins.kotlin.isGetter
 import styled.compiler.plugins.kotlin.isPlus
 import styled.compiler.plugins.kotlin.isPropertyGetter

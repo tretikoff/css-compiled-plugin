@@ -10,9 +10,9 @@ import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
-import repro.deepcopy.generation.getConstValues
-import repro.deepcopy.generation.normalize
-import repro.deepcopy.generation.replacePropertyAccessor
+import styled.compiler.plugins.kotlin.getConstValues
+import styled.compiler.plugins.kotlin.normalize
+import styled.compiler.plugins.kotlin.replacePropertyAccessor
 import styled.compiler.plugins.kotlin.isInCssLib
 import styled.compiler.plugins.kotlin.isToColorProperty
 

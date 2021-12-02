@@ -3,7 +3,7 @@ package styled.compiler.plugins.kotlin.visitors
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
-import repro.deepcopy.generation.normalize
+import styled.compiler.plugins.kotlin.normalize
 import styled.compiler.plugins.kotlin.isCssCall
 import styled.compiler.plugins.kotlin.isPlus
 

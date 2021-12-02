@@ -4,23 +4,20 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrVariable
-import org.jetbrains.kotlin.ir.util.dump
-import org.jetbrains.kotlin.ir.util.getPackageFragment
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
-import repro.deepcopy.generation.writeDump
-import styled.compiler.plugins.kotlin.isSetCustomProperty
+import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
+import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
 import styled.compiler.plugins.kotlin.packageStr
 
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
-class GlobalVariablesVisitor(private val prefix: String = "") : IrElementVisitor<Unit, StringBuilder> {
+class GlobalVariablesVisitor(private val prefix: String = "") : IrElementVisitorVoid {
     companion object {
         val varValues = mutableMapOf<String, String>()
         val cssVarValues = mutableMapOf<String, String>()
     }
 
-    override fun visitElement(element: IrElement, data: StringBuilder) {
+    override fun visitElement(element: IrElement) {
         when (element) {
             is IrVariable -> {
                 val name = element.name.asString()
@@ -38,10 +35,10 @@ class GlobalVariablesVisitor(private val prefix: String = "") : IrElementVisitor
             is IrClass -> {
                 // TODO support prefixes for regular variables - something like package.Class1.Class2.(...).funName1.(...).varName
                 val name = element.name.asStringStripSpecialMarkers()
-                element.acceptChildren(GlobalVariablesVisitor("$prefix.$name"), data)
+                element.acceptChildrenVoid(GlobalVariablesVisitor("$prefix.$name"))
             }
             else -> {
-                element.acceptChildren(this, data)
+                element.acceptChildrenVoid(this)
             }
         }
     }
