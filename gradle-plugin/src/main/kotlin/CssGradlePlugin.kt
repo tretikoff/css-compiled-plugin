@@ -10,8 +10,13 @@ import java.nio.file.Paths
 
 class CssGradlePlugin : KotlinCompilerPluginSupportPlugin {
     override fun apply(target: Project): Unit = with(target) {
-        val sharedModel = mapOf("path" to ":plugin") // TODO add from maven when published
-        dependencies.add("kotlinCompilerPluginClasspath", dependencies.project(sharedModel))
+        try {
+            dependencies.add(
+                "kotlinCompilerPluginClasspath",
+                project(":plugin") // TODO add from maven when published
+            )
+        } catch (ignored: Throwable) {
+        }
     }
 
     override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean = true

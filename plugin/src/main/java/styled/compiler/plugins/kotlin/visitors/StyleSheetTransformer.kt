@@ -1,23 +1,13 @@
 package styled.compiler.plugins.kotlin.visitors
 
 import org.jetbrains.kotlin.backend.common.ir.allParameters
-import org.jetbrains.kotlin.backend.common.ir.remapTypeParameters
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationContainer
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.expressions.*
-import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
-import org.jetbrains.kotlin.ir.symbols.IrFunctionSymbol
-import org.jetbrains.kotlin.ir.util.copyTypeAndValueArgumentsFrom
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
-import styled.compiler.plugins.kotlin.createStyleSheetClassname
-import styled.compiler.plugins.kotlin.fragment
-import styled.compiler.plugins.kotlin.replacePropertyAccessor
-import styled.compiler.plugins.kotlin.isGetter
-import styled.compiler.plugins.kotlin.isPlus
-import styled.compiler.plugins.kotlin.isPropertyGetter
+import styled.compiler.plugins.kotlin.*
 
 /**
  * Inserts classname instead of adding and injecting stylesheet
@@ -37,60 +27,46 @@ import styled.compiler.plugins.kotlin.isPropertyGetter
 $this: CONST String type=kotlin.String value="WelcomeStyles-textContainer"
 
  */
+//val IrDeclarationParent.isCssBuilder
+//    get() = fqNameForIrSerialization.asString() == "kotlinx.css.CssBuilder"
 
-// TODO get function names from kotlin-css from runtime
+val IrDeclarationContainer.addClassFun: IrSimpleFunction?
+    get() = functionDecls.firstOrNull(IrFunction::isAddClassFun)?.symbol?.owner as? IrSimpleFunction
 
+val IrFunction.isAddClassFun
+    get() = isPlus() && allParameters.size == 2 && allParameters.last().type == fragment.irBuiltins.stringType
 
+val IrDeclarationContainer.functionDecls: List<IrFunction>
+    get() = declarations.filterIsInstance<IrFunction>()
+
+//val IrFunction.parentsNames: String
+//    get() = parents.joinToString { it.fqNameForIrSerialization.asString() }
+
+// name.asString() == "addClass"
+
+fun IrFunction.getConstCssFunction() = (parent as? IrDeclarationContainer)?.addClassFun
+
+// TODO get function names from kotlin-css from runtime to check function is library call
 class StyleSheetTransformer : IrElementTransformer<StringBuilder> {
-    private fun IrFunction.getConstCssFunction(): IrFunctionSymbol {
-        val function = (parent as? IrDeclarationContainer)?.declarations
-            ?.filterIsInstance<IrFunction>()
-            ?.firstOrNull { it.isPlus() && it.allParameters.size == 2 && it.allParameters.last().type == fragment.irBuiltins.stringType }
-        return function?.symbol ?: throw IllegalStateException("Couldn't find constant css function implementation")
-    }
-
     private var className: String = ""
     private var name: String = ""
     override fun visitCall(expression: IrCall, data: StringBuilder): IrElement {
         expression.transformChildren(this, data)
-        val callee = expression.symbol.owner
         var updatedCall = expression
-        if (callee.isPlus()) {
-            val actualFunction = callee.getConstCssFunction().owner as IrSimpleFunction
-            updatedCall = IrCallImpl(
-                symbol = actualFunction.symbol,
-                origin = expression.origin,
-                startOffset = expression.startOffset,
-                endOffset = expression.endOffset,
-                type = expression.type.remapTypeParameters(callee, actualFunction),
-                typeArgumentsCount = expression.typeArgumentsCount,
-                valueArgumentsCount = expression.valueArgumentsCount,
-                superQualifierSymbol = expression.superQualifierSymbol
-            )
-            updatedCall.copyTypeAndValueArgumentsFrom(expression)
-            updatedCall.extensionReceiver?.let {
-                if (it is IrCall) {
-                    if (it.symbol.owner.isPropertyGetter()) {
-                        (it.extensionReceiver as? IrGetObjectValue)?.let { styleSheetObj ->
-                            name = styleSheetObj.symbol.owner.name.asString()
-                        }
-                    }
-                    updatedCall.extensionReceiver = IrConstImpl(
-                        it.startOffset, it.endOffset, fragment.irBuiltins.stringType, IrConstKind.String, className
-                    )
-                }
-            }
+        val callee = expression.symbol.owner
+        val cssFun = callee.getConstCssFunction()
+        if (expression.symbol.owner.isGetter()) {
+            className = createStyleSheetClassname(name, expression.name.replacePropertyAccessor())
         }
-        val owner = expression.symbol.owner
-        if (owner.isGetter()) {
-            className = createStyleSheetClassname(name, owner.name.asString().replacePropertyAccessor())
+        if (callee.isPlus() && cssFun != null) {
+            updatedCall = expression.transformWith(cssFun, className)
         }
         return updatedCall
     }
 
     override fun visitPropertyReference(expression: IrPropertyReference, data: StringBuilder): IrElement {
         className = createStyleSheetClassname(name, expression.symbol.owner.name.asString())
-        return expression;
+        return expression
     }
 
     override fun visitGetObjectValue(expression: IrGetObjectValue, data: StringBuilder): IrExpression {

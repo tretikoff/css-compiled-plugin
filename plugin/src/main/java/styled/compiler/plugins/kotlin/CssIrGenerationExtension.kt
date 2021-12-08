@@ -44,6 +44,7 @@ fun String.writeLog() {
 }
 
 private fun File.saveVariables(values: Map<String, String>) {
+    writeText("")
     values.forEach { (name, value) ->
         appendText("$name:$value${System.lineSeparator()}")
     }
@@ -58,14 +59,11 @@ class CssIrGenerationExtension(resourcesPath: String, varPath: String, private v
         createNewFile()
     }
     private val varFile = File(varPath).apply { parentFile.mkdirs(); createNewFile() }
-    private fun loadVariables() {
+    private fun loadSavedSubprojectVariables() {
         subprojectVarPaths.forEach {
-            it.writeLog()
             try {
-
                 File(it).reader().useLines { lines ->
                     lines.forEach { line ->
-                        line.writeLog()
                         val (name, value) = line.split(":")
                         GlobalVariablesVisitor.varValues[name] = value
                     }
@@ -77,15 +75,16 @@ class CssIrGenerationExtension(resourcesPath: String, varPath: String, private v
     }
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
-        loadVariables()
+        loadSavedSubprojectVariables()
         fragment = moduleFragment
         context = pluginContext
-        // traverse through all the code
+        // traverse through all the code and
+        // collect variables
         fragment.acceptChildrenVoid(GlobalVariablesVisitor())
+        // then transform and collect css code
         fragment.acceptChildren(TreeVisitor(), cssBuilder)
 
-        // Css vars collecting
-        // TODO not dump everything into the root
+        // Css variables
         val cssRootBuilder = StringBuilder().appendLine(":root {")
         GlobalVariablesVisitor.cssVarValues.entries.forEach { (name, value) -> cssRootBuilder.appendLine("--$name: $value;") }
         cssRootBuilder.appendLine("}")
@@ -94,6 +93,6 @@ class CssIrGenerationExtension(resourcesPath: String, varPath: String, private v
         varFile.saveVariables(GlobalVariablesVisitor.varValues)
         cssFile.writeText(cssRootBuilder.toString())
         cssFile.appendText(cssBuilder.toString())
-        logFile.appendText(logBuilder.toString())
+        logFile.writeText(logBuilder.toString())
     }
 }

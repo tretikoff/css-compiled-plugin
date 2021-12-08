@@ -13,6 +13,11 @@ dependencies {
     implementation(kotlin("gradle-plugin-api"))
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 group="CssGradlePlugin"
 
 gradlePlugin {

@@ -11,6 +11,7 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
 import styled.compiler.plugins.kotlin.Parameter
 import styled.compiler.plugins.kotlin.createStyleSheetClassname
+import styled.compiler.plugins.kotlin.isCssCall
 import styled.compiler.plugins.kotlin.name
 
 class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, StringBuilder> {
