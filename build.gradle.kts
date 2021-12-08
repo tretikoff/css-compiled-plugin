@@ -3,8 +3,12 @@ buildscript {
         maven(url = "./gradle-plugin")
     }
 }
+val kotlin_version = "1.6.0"
+val react_version = "17.0.2-pre.278-kotlin-$kotlin_version"
+val react_dom_version = "17.0.2-pre.278-kotlin-$kotlin_version"
+val styled_next_version = "1.0-pre.278-kotlin-$kotlin_version"
 plugins {
-    kotlin("js") version "1.5.31"
+    kotlin("js") version "1.6.0"
     `maven-publish`
     id("CssGradlePlugin") version "0.1"
 
@@ -27,20 +31,12 @@ subprojects {
     }
 }
 
-rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {
-    rootProject.the<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension>().apply {
-        resolution("@webpack-cli/serve", "1.5.2")
-    }
-}
-
 dependencies {
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-react:17.0.2-pre.256-kotlin-1.5.31")
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:17.0.2-pre.256-kotlin-1.5.31")
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:5.3.1-pre.256-kotlin-1.5.31")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$react_version")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$react_dom_version")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-styled-next:$styled_next_version")
     implementation(project(":shared"))
     testImplementation(kotlin("test"))
-//    implementation("org.jetbrains.kotlin-wrappers:kotlin-css:1.0.0-pre.256-kotlin-1.5.31")
-//    api(npm("inline-style-prefixer", "^6.0.0"))
 }
 
 kotlin {

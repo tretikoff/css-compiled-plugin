@@ -34,7 +34,9 @@ val IrDeclarationContainer.addClassFun: IrSimpleFunction?
     get() = functionDecls.firstOrNull(IrFunction::isAddClassFun)?.symbol?.owner as? IrSimpleFunction
 
 val IrFunction.isAddClassFun
-    get() = isPlus() && allParameters.size == 2 && allParameters.last().type == fragment.irBuiltins.stringType
+    get() = isPlus()
+            && allParameters.size == 2
+            && allParameters.lastOrNull()?.type == context.irBuiltIns.stringType
 
 val IrDeclarationContainer.functionDecls: List<IrFunction>
     get() = declarations.filterIsInstance<IrFunction>()

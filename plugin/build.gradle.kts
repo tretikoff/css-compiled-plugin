@@ -1,11 +1,13 @@
 plugins {
     id("kotlin")
 }
+val kotlin_version = "1.6.0"
+val css_version = "1.0.0-pre.278-kotlin-$kotlin_version"
 
 dependencies {
-    compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.5.31")
-    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.5.31")
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-css:1.0.0-pre.247-kotlin-1.5.31")
+    compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version")
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$css_version")
 }
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {
