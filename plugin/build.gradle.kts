@@ -8,6 +8,7 @@ dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version")
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
     implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$css_version")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.0")
 }
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions {

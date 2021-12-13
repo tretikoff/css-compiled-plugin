@@ -7,27 +7,20 @@ import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import styled.compiler.plugins.kotlin.isCssCall
 import styled.compiler.plugins.kotlin.isSetCustomProperty
 import styled.compiler.plugins.kotlin.isStyleSheet
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
 class TreeVisitor : IrElementVisitor<Unit, StringBuilder> {
-    private var incrementedClassName: Int = 0
-        get() {
-            return field.also { field++ }
-        }
+    private var classNameId = AtomicInteger(0)
     private val generatedClassName: String
-        get() {
-            return "ksc-static-$incrementedClassName"
-        }
+        get() = "ksc-static-${classNameId.incrementAndGet()}"
 
     override fun visitElement(element: IrElement, data: StringBuilder) {
         when (element) {
             is IrCall -> if (element.isCssCall()) {
-                val className = generatedClassName
-                data.appendLine(".$className {")
-                element.transform(CssTransformer(className), data)
-                data.appendLine("}")
+                element.transform(CssTransformer(generatedClassName), data)
             } else if (element.isSetCustomProperty()) {
                 /**
                  * $$$$$$STRING_CONCATENATION type=kotlin.String

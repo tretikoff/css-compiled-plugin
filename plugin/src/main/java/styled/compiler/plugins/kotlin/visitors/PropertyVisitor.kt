@@ -10,11 +10,7 @@ import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
-import styled.compiler.plugins.kotlin.getConstValues
-import styled.compiler.plugins.kotlin.normalize
-import styled.compiler.plugins.kotlin.replacePropertyAccessor
-import styled.compiler.plugins.kotlin.isInCssLib
-import styled.compiler.plugins.kotlin.isToColorProperty
+import styled.compiler.plugins.kotlin.*
 
 // TODO get computable values like (8 * 8).px
 // We can check if return is LinearDimension
@@ -26,18 +22,7 @@ import styled.compiler.plugins.kotlin.isToColorProperty
 
 // TODO get string builder values
 
-/**
- * FUN name:<get-unit> visibility:public modality:FINAL <> ($receiver:kotlin.Int) returnType:kotlinx.css.LinearDimension
-correspondingProperty: PROPERTY name:unit visibility:public modality:FINAL [val]
-$receiver: VALUE_PARAMETER name:<this> type:kotlin.Int
-BLOCK_BODY
-RETURN type=kotlin.Nothing from='public final fun <get-unit> (): kotlinx.css.LinearDimension declared in <root>'
-CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-$receiver: CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
-$this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
-other: CONST Int type=kotlin.Int value=8
- */
-class PropertyVisitor : IrElementVisitor<Unit, StringBuilder> {
+class PropertyVisitor(value: Any?) : IrElementVisitor<Unit, StringBuilder> {
     private fun IrCall.runtimeDeclaration(): String {
         val values = getConstValues()
         if (isToColorProperty()) {
@@ -67,6 +52,7 @@ class PropertyVisitor : IrElementVisitor<Unit, StringBuilder> {
                 }
             }
         }
+
         val declaration = when (val propertyName = name.toPropertyName()) {
             "rgb" -> "rgb(${values.joinToString(", ")})"
             else -> "${values.firstOrNull() ?: ""}$propertyName" // TODO
@@ -80,6 +66,12 @@ class PropertyVisitor : IrElementVisitor<Unit, StringBuilder> {
     }
 
     override fun visitCall(expression: IrCall, data: StringBuilder) {
+//        try {
+//            expression.dump().writeLog()
+//            expression.symbol.owner.parent.dump().writeLog()
+//
+//        } catch (e: Throwable) {
+//        }
         val declaration = expression.runtimeDeclaration()
         if (declaration.isEmpty()) {
             expression.acceptChildren(this, data)

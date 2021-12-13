@@ -44,6 +44,10 @@ fun IrFunction.isGetter(): Boolean {
     return name.asString().startsWith("<get")
 }
 
+fun IrCall.isSetter(): Boolean {
+    return name.startsWith("<set")
+}
+
 fun IrFunction.isPropertyGetter(): Boolean {
     val propertyAttributes = arrayOf("getClassName", "getClassSelector")
     return propertyAttributes.any { it == name.asString() }
