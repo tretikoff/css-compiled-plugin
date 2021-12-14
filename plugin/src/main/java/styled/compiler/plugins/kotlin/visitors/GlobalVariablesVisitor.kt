@@ -22,14 +22,14 @@ class GlobalVariablesVisitor(private val prefix: String = "") : IrElementVisitor
             is IrVariable -> {
                 val name = element.name.asString()
                 val builder = StringBuilder()
-                element.acceptChildren(PropertyVisitor(), builder)
+//                element.acceptChildren(PropertyVisitor(), builder)
                 varValues[name] = builder.toString()
             }
             is IrField -> {
                 val pack = element.packageStr
                 val name = element.name.asString()
                 val builder = StringBuilder()
-                element.acceptChildren(PropertyVisitor(), builder)
+//                element.acceptChildren(PropertyVisitor(), builder)
                 varValues["$pack$prefix.$name"] = builder.toString()
             }
             is IrClass -> {

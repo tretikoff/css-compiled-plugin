@@ -16,8 +16,6 @@ import java.io.File
 import java.nio.file.Paths
 import java.util.*
 
-typealias Parameter = Pair<String, Any?>
-
 fun IrCall.getConstValues(): Collection<String?> {
     return this.getArgumentsWithIr()
         .map { it.second }
@@ -27,6 +25,11 @@ fun IrCall.getConstValues(): Collection<String?> {
 fun String.replacePropertyAccessor(): String {
     return this.replace("<get-", "").replace("<set-", "").replace(">", "")
 }
+
+fun String.toCamelCase() =
+    split('-').joinToString("", transform = String::capitalize).decapitalize()
+
+fun String.normalizeGetSet() = replace("<", "").replace(">", "").toCamelCase()
 
 fun String.capitalize() = replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 

@@ -24,15 +24,16 @@ class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(prop
     }
 
     override fun RBuilder.render() {
-        val listItemActiveBackgroundColor = Color("#e0eeff")
+//        val listItemActiveBackgroundColor = Color("#e0eeff")
         styledDiv {
             css {
                 +"some-external-classname"
                 +WelcomeStyles.textContainer
-                backgroundColor = listItemActiveBackgroundColor
-                color = textColor
+                backgroundColor = Color("#111111")
+//                backgroundColor = listItemActiveBackgroundColor
+//                color = textColor
                 marginLeft = 3.px
-                borderColor = XTheme.theme.skeletonBackgroundColor
+//                borderColor = XTheme.theme.skeletonBackgroundColor
             }
             +"Hello, ${state.name}"
         }

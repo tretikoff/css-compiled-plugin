@@ -1,6 +1,6 @@
 plugins {
     kotlin("js")
-    id("CssGradlePlugin")
+//    id("CssGradlePlugin")
 }
 
 val css_version = "1.0.0-pre.278-kotlin-1.6.0"

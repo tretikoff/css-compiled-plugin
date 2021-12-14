@@ -1,4 +1,3 @@
 package styled.compiler.plugins.kotlin
 
-class ValueExtractionException: Exception() {
-}
+class ValueExtractionException : Exception()

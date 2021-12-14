@@ -8,11 +8,8 @@ val react_version = "17.0.2-pre.278-kotlin-$kotlin_version"
 val react_dom_version = "17.0.2-pre.278-kotlin-$kotlin_version"
 val styled_next_version = "1.0-pre.278-kotlin-$kotlin_version"
 plugins {
-    kotlin("js") version "1.6.0"
-    `maven-publish`
+    kotlin("js") version "1.5.31"
     id("CssGradlePlugin") version "0.1"
-
-    id("com.gradle.plugin-publish") version "0.11.0" apply false
 }
 version = "0.1"
 group = "me.user"

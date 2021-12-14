@@ -1,16 +1,20 @@
 package styled.compiler.plugins.kotlin.visitors
 
-import kotlinx.css.toCustomProperty
+import kotlinx.css.Align
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.backend.js.utils.asString
-import org.jetbrains.kotlin.ir.declarations.IrFunction
+import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.name
 import org.jetbrains.kotlin.ir.expressions.*
-import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
-import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
-import org.jetbrains.kotlin.ir.util.isGetter
+import org.jetbrains.kotlin.ir.interpreter.IrInterpreter
+import org.jetbrains.kotlin.ir.types.classFqName
+import org.jetbrains.kotlin.ir.types.isPrimitiveType
+import org.jetbrains.kotlin.ir.util.dump
+import org.jetbrains.kotlin.ir.util.fileOrNull
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
-import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
-import styled.compiler.plugins.kotlin.*
+import styled.compiler.plugins.kotlin.name
+import styled.compiler.plugins.kotlin.normalizeGetSet
+import styled.compiler.plugins.kotlin.writeLog
+import kotlin.reflect.full.companionObject
 
 // TODO get computable values like (8 * 8).px
 // We can check if return is LinearDimension
@@ -22,92 +26,108 @@ import styled.compiler.plugins.kotlin.*
 
 // TODO get string builder values
 
-class PropertyVisitor(value: Any?) : IrElementVisitor<Unit, StringBuilder> {
-    private fun IrCall.runtimeDeclaration(): String {
-        val values = getConstValues()
-        if (isToColorProperty()) {
-            extensionReceiver?.let { it ->
-                val builder = StringBuilder()
-                it.accept(this@PropertyVisitor, builder)
-                return builder.toString().toCustomProperty()
-            }
-        }
-        val function: IrFunction = symbol.owner
-        val receiver = function.dispatchReceiverParameter
-        val name = function.name.asString().replacePropertyAccessor()
+fun Array<Any?>.types(): Array<Class<*>> {
+    return map { it!!::class.java }.toTypedArray()
+}
 
-        // get variable value from global variables
-        if (function.isGetter) {
-            if (receiver != null) {
-                val key = "${receiver.type.asString()}.${name}"
-                val varValue = GlobalVariablesVisitor.varValues[key]
-                if (varValue != null) return varValue
-            } else if (!function.isInCssLib()) {
-                // handle extension function call
-                val rec = extensionReceiver
-                if (rec is IrConst<*>) {
-                    val builder = StringBuilder()
-                    function.accept(SimpleExpressionVisitor(rec.value), builder)
-                    if (builder.isNotEmpty()) return builder.toString()
+fun IrExpression.extractDirectValues(): Array<Any?> {
+    val values = mutableListOf<Any?>()
+    accept(PropertyVisitor(values), StringBuilder())
+    return values.toTypedArray()
+}
+
+fun IrExpression.extractValues(): Array<Any?> {
+    val values = mutableListOf<Any?>()
+    acceptChildren(PropertyVisitor(values), StringBuilder())
+    return values.toTypedArray()
+}
+
+fun IrFile.classForExtensions(): Class<*> {
+    val name = "${fqName.asString()}.${name.replace(".kt", "Kt")}"
+    return Class.forName(name)
+}
+
+fun String.isCompanion() = endsWith(".Companion")
+
+class PropertyVisitor(private val values: MutableList<Any?>) : IrElementVisitor<Unit, StringBuilder> {
+    override fun visitCall(expression: IrCall, data: StringBuilder) {
+        "Call ${expression.dump()} with receiver ${expression.dispatchReceiver?.dump()} and ${expression.extensionReceiver?.dump()}".writeLog()
+        val subValues = expression.extractValues()
+        expression.dispatchReceiver?.let { it ->
+            if (!it.type.isPrimitiveType()) {
+                val clazzName = it.type.classFqName?.asString()
+                clazzName?.let {
+                    if (clazzName.isCompanion()) {
+                        val clazz = Class.forName(clazzName.replace(".Companion", "")).kotlin.companionObject!!.java
+
+                        val name = expression.name.normalizeGetSet()
+                        val value = clazz.methods.firstOrNull { it.name == name }?.invoke(null, *subValues)
+                        values.add(value)
+                    }
                 }
             }
+            return
         }
+        expression.extensionReceiver?.let { it ->
+            val extValues = it.extractDirectValues()
+            try {
+                val clazz = expression.symbol.owner.fileOrNull?.classForExtensions()
+                val method = clazz?.methods?.firstOrNull { it.name == expression.name.normalizeGetSet() }
+                val value = method?.invoke(null, *extValues)
+                values.add(value)
+            } catch (e: Throwable) {
+                e.stackTraceToString().writeLog()
+            }
 
-        val declaration = when (val propertyName = name.toPropertyName()) {
-            "rgb" -> "rgb(${values.joinToString(", ")})"
-            else -> "${values.firstOrNull() ?: ""}$propertyName" // TODO
+//                extensionClass?.methods?.forEach { it.name.writeLog() }
+//                val clazz = if (it.type.isPrimitiveType()) {
+//                    it.type.getPrimitiveType()?.getClass()
+//                } else {
+//                    it.type.classOrNull?.owner?.fileOrNull?.classForExtensions()
+//                }
+//                if (clazz != null && expression.name.isGetter()) {
+//                    clazz.methods.forEach { it.name.writeLog() }
+//                }
+            return
         }
-        return declaration
-    }
-
-    private fun String.toPropertyName(): String {
-        val normalized = normalize()
-        return if (normalized == "pct") "%" else normalized
-    }
-
-    override fun visitCall(expression: IrCall, data: StringBuilder) {
-//        try {
-//            expression.dump().writeLog()
-//            expression.symbol.owner.parent.dump().writeLog()
-//
-//        } catch (e: Throwable) {
-//        }
-        val declaration = expression.runtimeDeclaration()
-        if (declaration.isEmpty()) {
-            expression.acceptChildren(this, data)
-        } else {
-            data.append(" $declaration")
+        val extensionClass = expression.symbol.owner.fileOrNull?.classForExtensions()
+        extensionClass?.let { clazz ->
+            val value = clazz.methods.first { it.name == expression.name }.invoke(null, *subValues)
+            values.add(value)
+            return
         }
     }
 
     override fun visitConstructorCall(expression: IrConstructorCall, data: StringBuilder) {
-        val str = expression.getArgumentsWithIr()
-            .map { it.second }
-            .filterIsInstanceMapNotNull<IrConstImpl<*>, String?> { it.value?.toString() }
-            .firstOrNull() // TODO somehow get non-const values
-        if (str != null) {
-            data.append(str.normalize())
-        } else {
-            expression.acceptChildren(this, data)
-        }
+        val clazzName = expression.type.classFqName?.asString()
+        val clazz = Class.forName(clazzName)
+        val subvalues = expression.extractValues()
+        val constructor = clazz.getConstructor(*subvalues.map { it!!::class.java }.toTypedArray())
+        val value = constructor.newInstance(*subvalues)
+        values.add(value)
     }
 
     override fun visitGetEnumValue(expression: IrGetEnumValue, data: StringBuilder) {
-        data.append(expression.symbol.owner.name.asString().normalize())
+        val clazz = Class.forName(expression.type.classFqName?.asString())
+        Align.valueOf(expression.name)
+        val enumValue = clazz.getMethod("valueOf", String::class.java).invoke(null, expression.name)
+        values.add(enumValue)
     }
 
     override fun <T> visitConst(expression: IrConst<T>, data: StringBuilder) {
-        data.append(expression.value)
+        values.add(expression.value)
+        "Visited const $values".writeLog()
     }
 
     override fun visitGetValue(expression: IrGetValue, data: StringBuilder) {
-        val varName = expression.symbol.owner.name.asString()
-        val value = GlobalVariablesVisitor.varValues[varName]
-        if (value != null) {
-            data.append(value)
-        } else {
-            expression.acceptChildren(this, data)
-        }
+        "Get value ${expression.dump()}".writeLog()
+//        val varName = expression.symbol.owner.name.asString()
+//        val value = GlobalVariablesVisitor.varValues[varName]
+//        if (value != null) {
+//            data.append(value)
+//        } else {
+//            expression.acceptChildren(this, data)
+//        }
     }
 
     override fun visitElement(element: IrElement, data: StringBuilder) {

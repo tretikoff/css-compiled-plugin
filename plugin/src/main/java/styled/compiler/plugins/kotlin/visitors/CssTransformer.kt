@@ -8,7 +8,6 @@ import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
-import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
@@ -20,16 +19,9 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import styled.compiler.plugins.kotlin.*
 
 /** TODO value.unit -> to value.px */
-/** TODO function evaluation */
 
 var cssBuilderParameter: IrValueParameter? = null
 var css = CssBuilder()
-
-fun IrExpression.extractValues(): Array<Any> {
-    val values: List<Any> = listOf()
-    acceptChildren(PropertyVisitor(values), java.lang.StringBuilder())
-    return values.toTypedArray()
-}
 
 class CssTransformer(val className: String = "") : IrElementTransformer<StringBuilder> {
     private fun collectCss(block: () -> Unit): String {
@@ -53,26 +45,28 @@ class CssTransformer(val className: String = "") : IrElementTransformer<StringBu
             return expression.transform(StyleSheetTransformer(), data)
         } else if (expression.isCssCall()) {
             cssBuilderParameter = expression.getArgumentsWithIr().mapNotNull { (_, expr) ->
-//                (expr as? IrFunctionExpressionImpl)?.let {
-//                    IrInterpreter(fragment).interpret(it).dump().writeLog()
-//                }
                 (expr as? IrFunctionExpressionImpl)?.function?.extensionReceiverParameter
             }.firstOrNull()
             val str = collectCss {
                 expression.transformChildren(this, data)
             }
             data.append(str)
-
         } else if (owner.isInCssLib()) {
-            if (expression.isSetter()) {
+            if (expression.isSetter()) { // TODO other cases
                 expression.dump().writeLog()
                 val name = expression.name.replacePropertyAccessor()
                 // https://stackoverflow.com/questions/48635210/how-to-obtain-properties-or-function-declared-in-kotlin-extensions-by-java-refle
-                val c = Class.forName("kotlinx.css.StyledElementKt")
+                val clazz = Class.forName("kotlinx.css.StyledElementKt")
                 val values = expression.extractValues()
-                c.methods.first {
-                    it.name == "set${name.capitalize()}"
-                }.invoke(null, css, *values)
+                values.forEach { "$$$$$${it} ${it?.javaClass?.name}".writeLog() }
+                try {
+//                    val method = clazz.getMethod("set${name.capitalize()}", *values.types()) // TODO
+                    val method = clazz.methods.first { m -> m.name == "set${name.capitalize()}" }
+                    method.invoke(null, css, *values)
+                } catch (e: Throwable) {
+                    e.stackTraceToString().writeLog()
+//                    TODO()
+                }
             }
             cssFun?.let { css ->
                 updatedCall = expression.transformWith(css, className)
