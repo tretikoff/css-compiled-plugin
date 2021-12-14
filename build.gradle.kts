@@ -3,10 +3,10 @@ buildscript {
         maven(url = "./gradle-plugin")
     }
 }
-val kotlin_version = "1.6.0"
-val react_version = "17.0.2-pre.278-kotlin-$kotlin_version"
-val react_dom_version = "17.0.2-pre.278-kotlin-$kotlin_version"
-val styled_next_version = "1.0-pre.278-kotlin-$kotlin_version"
+val kotlin_version = "1.5.31"
+val react_version = "17.0.2-pre.265-kotlin-$kotlin_version"
+val react_dom_version = "17.0.2-pre.265-kotlin-$kotlin_version"
+val styled_next_version = "0.1-pre.265-kotlin-$kotlin_version"
 plugins {
     kotlin("js") version "1.5.31"
     id("CssGradlePlugin") version "0.1"
