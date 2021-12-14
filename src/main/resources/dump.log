@@ -1,0 +1,121 @@
+[Ljava.lang.StackTraceElement;@5eaeb5f4
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+setBackgroundColor with instance null and values , #111111
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
+  $receiver: CONST Int type=kotlin.Int value=3
+
+getPx with instance null and values 3
+setMarginLeft with instance null and values background-color: #111111;
+, 3px
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+setAlignItems with instance null and values , flex-end
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
+  $receiver: CONST Int type=kotlin.Int value=5
+
+getPx with instance null and values 5
+padding with instance null and values , 5px
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+grow with instance null and values padding: 5px;
+, GROW_SHRINK
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+CALL 'public final fun rgb (red: kotlin.Int, green: kotlin.Int, blue: kotlin.Int): kotlinx.css.Color declared in kotlinx.css' type=kotlinx.css.Color origin=null
+  red: CONST Int type=kotlin.Int value=8
+  green: CONST Int type=kotlin.Int value=97
+  blue: CONST Int type=kotlin.Int value=22
+
+rgb with instance null and values 8, 97, 22
+setBackgroundColor with instance null and values padding: 5px;
+flex: 1.0 1.0 auto;
+, rgb(8, 97, 22)
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+CALL 'public final fun rgb (red: kotlin.Int, green: kotlin.Int, blue: kotlin.Int): kotlinx.css.Color declared in kotlinx.css' type=kotlinx.css.Color origin=null
+  red: CONST Int type=kotlin.Int value=56
+  green: CONST Int type=kotlin.Int value=246
+  blue: CONST Int type=kotlin.Int value=137
+
+rgb with instance null and values 56, 246, 137
+setColor with instance null and values padding: 5px;
+flex: 1.0 1.0 auto;
+background-color: rgb(8, 97, 22);
+, rgb(56, 246, 137)
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
+  $receiver: CONST Int type=kotlin.Int value=5
+
+getPx with instance null and values 5
+margin with instance null and values , 5px
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
+  $receiver: CONST Int type=kotlin.Int value=15
+
+getPx with instance null and values 15
+CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
+  $receiver: CONST Int type=kotlin.Int value=18
+
+getPx with instance null and values 18
+padding with instance null and values margin: 5px;
+, 15px, 18px
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+CALL 'public final fun <get-w500> (): kotlinx.css.FontWeight declared in kotlinx.css.FontWeight.Companion' type=kotlinx.css.FontWeight origin=GET_PROPERTY
+  $this: GET_OBJECT 'CLASS OBJECT name:Companion modality:FINAL visibility:public [companion] superTypes:[kotlin.Any]' type=kotlinx.css.FontWeight.Companion
+
+getW500 with instance kotlinx.css.FontWeight$Companion@83c0d4d and values 
+<<<<500
+setFontWeight with instance null and values margin: 5px;
+padding: 15px 18px;
+, 500
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+CALL 'public final fun <get-unit> (): kotlinx.css.LinearDimension declared in <root>' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
+  $receiver: CONST Int type=kotlin.Int value=2
+
+FUN name:<get-unit> visibility:public modality:FINAL <> ($receiver:kotlin.Int) returnType:kotlinx.css.LinearDimension
+  correspondingProperty: PROPERTY name:unit visibility:public modality:FINAL [val]
+  $receiver: VALUE_PARAMETER name:<this> type:kotlin.Int
+  BLOCK_BODY
+    RETURN type=kotlin.Nothing from='public final fun <get-unit> (): kotlinx.css.LinearDimension declared in <root>'
+      CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
+        $receiver: CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
+          $this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
+          other: CONST Int type=kotlin.Int value=8
+
+CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
+  $receiver: CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
+    $this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
+    other: CONST Int type=kotlin.Int value=8
+
+CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
+  $this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
+  other: CONST Int type=kotlin.Int value=8
+
+Get value <this> GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
+
+<<<<16
+CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
+  $this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
+  other: CONST Int type=kotlin.Int value=8
+
+Get value <this> GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
+
+<<<<16
+getPx with instance null and values 16
+>>>>>16px
+setFontSize with instance null and values margin: 5px;
+padding: 15px 18px;
+font-weight: 500;
+, 16px
+Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textProperty$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+
+setAlignContent with instance null and values , end

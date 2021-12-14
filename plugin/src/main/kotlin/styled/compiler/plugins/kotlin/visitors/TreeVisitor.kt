@@ -40,12 +40,9 @@ class TreeVisitor : IrElementVisitor<Unit, StringBuilder> {
                 val name = element.getValueArgument(0)
                 val value = element.getValueArgument(1)
                 if (name != null && value != null) {
-                    // TODO
-//                    val nameBuilder = StringBuilder()
-//                    name.accept(PropertyVisitor(), nameBuilder)
-//                    val valueBuilder = StringBuilder()
-//                    value.accept(PropertyVisitor(), valueBuilder)
-//                    GlobalVariablesVisitor.cssVarValues[nameBuilder.toString()] = valueBuilder.toString()
+                    val extractedName = name.extractValues().single()
+                    val extractedValue = value.extractValues().single()
+                    GlobalVariablesVisitor.cssVarValues[extractedName.toString()] = extractedValue.toString()
                 }
             }
             is IrClass -> if (element.isStyleSheet()) {

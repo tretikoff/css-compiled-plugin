@@ -41,14 +41,8 @@ val IrFunction.isAddClassFun
 val IrDeclarationContainer.functionDecls: List<IrFunction>
     get() = declarations.filterIsInstance<IrFunction>()
 
-//val IrFunction.parentsNames: String
-//    get() = parents.joinToString { it.fqNameForIrSerialization.asString() }
-
-// name.asString() == "addClass"
-
 fun IrFunction.getConstCssFunction() = (parent as? IrDeclarationContainer)?.addClassFun
 
-// TODO get function names from kotlin-css from runtime to check function is library call
 class StyleSheetTransformer : IrElementTransformer<StringBuilder> {
     private var className: String = ""
     private var name: String = ""

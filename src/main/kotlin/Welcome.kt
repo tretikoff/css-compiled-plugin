@@ -1,4 +1,3 @@
-import framework.x.XTheme
 import kotlinx.css.*
 import kotlinx.html.InputType
 import kotlinx.html.js.onChangeFunction
@@ -8,7 +7,6 @@ import react.RBuilder
 import react.RComponent
 import react.State
 import react.dom.attrs
-import runtime.html.CommonTheme.textColor
 import styled.*
 
 external interface WelcomeProps : Props {

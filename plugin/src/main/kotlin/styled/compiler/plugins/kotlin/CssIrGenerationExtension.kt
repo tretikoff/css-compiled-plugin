@@ -1,45 +1,13 @@
 package styled.compiler.plugins.kotlin
 
-import kotlinx.css.hyphenize
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
-import org.jetbrains.kotlin.fir.backend.evaluate.evaluateConstants
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
-import org.jetbrains.kotlin.ir.expressions.IrCall
-import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
-import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
-import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
 import styled.compiler.plugins.kotlin.visitors.GlobalVariablesVisitor
 import styled.compiler.plugins.kotlin.visitors.TreeVisitor
 import java.io.File
 import java.nio.file.Paths
-import java.util.*
-
-fun IrCall.getConstValues(): Collection<String?> {
-    return this.getArgumentsWithIr()
-        .map { it.second }
-        .filterIsInstanceMapNotNull<IrConstImpl<*>, String?> { it.value?.toString() }
-}
-
-fun String.replacePropertyAccessor(): String {
-    return this.replace("<get-", "").replace("<set-", "").replace(">", "")
-}
-
-fun String.toCamelCase() =
-    split('-').joinToString("", transform = String::capitalize).decapitalize()
-
-fun String.normalizeGetSet() = replace("<", "").replace(">", "").toCamelCase()
-
-fun String.capitalize() = replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
-
-fun String.normalize(): String {
-    return this.replacePropertyAccessor().hyphenize()
-}
-
-fun createStyleSheetClassname(name: String, propertyName: String): String {
-    return "$name-$propertyName"
-}
 
 lateinit var fragment: IrModuleFragment
 lateinit var context: IrPluginContext
@@ -87,7 +55,6 @@ class CssIrGenerationExtension(resourcesPath: String, varPath: String, private v
         context = pluginContext
         // traverse through all the code and
         // collect variables
-        evaluateConstants(fragment)
         fragment.acceptChildrenVoid(GlobalVariablesVisitor())
         // then transform and collect css code
         fragment.acceptChildren(TreeVisitor(), cssBuilder)

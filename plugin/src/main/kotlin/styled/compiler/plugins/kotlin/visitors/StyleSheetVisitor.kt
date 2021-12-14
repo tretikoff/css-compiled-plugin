@@ -11,6 +11,7 @@ import styled.compiler.plugins.kotlin.createStyleSheetClassname
 import styled.compiler.plugins.kotlin.name
 
 class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, StringBuilder> {
+    var className = name
     private var arguments = mapOf<String, Any?>()
     override fun visitElement(element: IrElement, data: StringBuilder) {
         when (element) {
@@ -29,16 +30,12 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
                 arguments.let {
                     if (it.containsKey(propName)) return
                 }
-                val cssBuilder = StringBuilder().appendLine(".${createStyleSheetClassname(name, propName)} {")
-                element.acceptChildren(this, cssBuilder)
-                cssBuilder.appendLine("}")
-//                if (isValidBlock) {
-                data.append(cssBuilder)
-//                }
+                className = createStyleSheetClassname(name, propName)
+                element.acceptChildren(this, data)
             }
             is IrCall -> {
                 if (element.name == "css") {
-                    element.transformChildren(CssTransformer(), data)
+                    element.transform(CssTransformer(className), data)
                 } else {
                     element.acceptChildren(this, data);
                 }

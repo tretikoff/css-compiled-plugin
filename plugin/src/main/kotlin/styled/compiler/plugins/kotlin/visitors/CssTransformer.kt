@@ -17,21 +17,43 @@ import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
 import styled.compiler.plugins.kotlin.*
+import styled.compiler.plugins.kotlin.exceptions.ValueExtractionException
+import kotlin.reflect.KClass
+import kotlin.reflect.full.*
+import kotlin.reflect.jvm.jvmErasure
+import kotlin.reflect.jvm.jvmName
+import kotlin.reflect.safeCast
 
 /** TODO value.unit -> to value.px */
 
 var cssBuilderParameter: IrValueParameter? = null
 var css = CssBuilder()
 
-class CssTransformer(val className: String = "") : IrElementTransformer<StringBuilder> {
-    private fun collectCss(block: () -> Unit): String {
-        css = CssBuilder()
+fun Class<*>.invokeMethod(instance: Any?, name: String, vararg values: Any?): Any? {
+    when (name) { // TODO maybe move .unit to css library
+        "times" -> if (instance is Int) return instance.times(values.first() as Int)
+        "div" -> if (instance is Int) return instance.div(values.first() as Int)
+    }
+    val normalizedName = name.normalizeGetSet()
+    val method = methods.first { m ->
+        m.name == normalizedName &&
+                m.parameterCount == values.size &&
+                m.parameters.zip(values).all { (param, value) ->
+                    if (value == null) true else param.type.kotlin.safeCast(value) != null
+                }
+    }
+    return method.invoke(instance, *values)
+}
+
+class CssTransformer(private val className: String = "") : IrElementTransformer<StringBuilder> {
+    private fun collectCss(block: () -> Unit): String? {
+        css = CssBuilder("  ")
         return try {
             block()
             css.toString()
         } catch (e: Throwable) {
             e.stackTraceToString().writeLog()
-            ""
+            null
         } finally {
             cssBuilderParameter = null
         }
@@ -43,34 +65,34 @@ class CssTransformer(val className: String = "") : IrElementTransformer<StringBu
         val cssFun = cssBuilderParameter?.type?.classOrNull?.owner?.addClassFun
         if (owner.isPlus() && cssFun != null) {
             return expression.transform(StyleSheetTransformer(), data)
-        } else if (expression.isCssCall()) {
+        } else if (expression.isCssCall() || expression.name == "css") {
             cssBuilderParameter = expression.getArgumentsWithIr().mapNotNull { (_, expr) ->
                 (expr as? IrFunctionExpressionImpl)?.function?.extensionReceiverParameter
             }.firstOrNull()
             val str = collectCss {
                 expression.transformChildren(this, data)
             }
-            data.append(str)
+            str?.let {
+                data.appendLine(".$className {").append(str).appendLine("}")
+            }
         } else if (owner.isInCssLib()) {
-            if (expression.isSetter()) { // TODO other cases
-                expression.dump().writeLog()
-                val name = expression.name.replacePropertyAccessor()
-                // https://stackoverflow.com/questions/48635210/how-to-obtain-properties-or-function-declared-in-kotlin-extensions-by-java-refle
-                val clazz = Class.forName("kotlinx.css.StyledElementKt")
-                val values = expression.extractValues()
-                values.forEach { "$$$$$${it} ${it?.javaClass?.name}".writeLog() }
-                try {
-//                    val method = clazz.getMethod("set${name.capitalize()}", *values.types()) // TODO
-                    val method = clazz.methods.first { m -> m.name == "set${name.capitalize()}" }
-                    method.invoke(null, css, *values)
-                } catch (e: Throwable) {
-                    e.stackTraceToString().writeLog()
-//                    TODO()
+            // https://stackoverflow.com/questions/48635210/how-to-obtain-properties-or-function-declared-in-kotlin-extensions-by-java-refle
+            val styledElementClass = Class.forName("kotlinx.css.StyledElementKt")
+            val values = expression.extractValues()
+            try {
+                if (expression.extensionReceiver != null) {
+                    styledElementClass.invokeMethod(null, expression.name, css, *values)
+                } else {
+                    styledElementClass.invokeMethod(null, expression.name, *values)
                 }
+            } catch (e: Throwable) {
+                e.stackTraceToString().writeLog()
             }
             cssFun?.let { css ->
                 updatedCall = expression.transformWith(css, className)
             }
+        } else {
+//            "$$$${owner.packageStr} ${owner.name} ${owner.dump()}".writeLog()
         }
         return updatedCall
     }

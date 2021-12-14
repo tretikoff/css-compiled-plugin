@@ -1,12 +1,17 @@
 package styled.compiler.plugins.kotlin
 
+import kotlinx.css.hyphenize
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
+import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
+import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.getPackageFragment
+import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
+import java.util.*
 
 fun IrCall.isCssCall(): Boolean {
     return symbol.signature?.render()?.startsWith("styled/css") ?: false
@@ -49,4 +54,29 @@ fun String.isSetter() = startsWith("<set")
 fun IrFunction.isPropertyGetter(): Boolean {
     val propertyAttributes = arrayOf("getClassName", "getClassSelector")
     return propertyAttributes.any { it == name.asString() }
+}
+
+fun IrCall.getConstValues(): Collection<String?> {
+    return this.getArgumentsWithIr()
+        .map { it.second }
+        .filterIsInstanceMapNotNull<IrConstImpl<*>, String?> { it.value?.toString() }
+}
+
+fun String.replacePropertyAccessor(): String {
+    return this.replace("<get-", "").replace("<set-", "").replace(">", "")
+}
+
+fun String.toCamelCase() =
+    split('-').joinToString("", transform = String::capitalize).decapitalize()
+
+fun String.normalizeGetSet() = replace("<", "").replace(">", "").toCamelCase()
+
+fun String.capitalize() = replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
+fun String.normalize(): String {
+    return this.replacePropertyAccessor().hyphenize()
+}
+
+fun createStyleSheetClassname(name: String, propertyName: String): String {
+    return "$name-$propertyName"
 }
