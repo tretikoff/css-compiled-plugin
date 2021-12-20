@@ -1,48 +1,55 @@
 package styled.compiler.plugins.kotlin.visitors
 
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.declarations.IrDeclaration
+import org.jetbrains.kotlin.ir.declarations.IrField
 import org.jetbrains.kotlin.ir.declarations.IrVariable
-import org.jetbrains.kotlin.ir.expressions.IrBody
-import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrSetValue
+import org.jetbrains.kotlin.ir.util.nameForIrSerialization
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
-import kotlin.collections.set
+import styled.compiler.plugins.kotlin.writeLog
 
-
-class StackFrame {
-    val variables = mutableMapOf<String, Any?>()
-    private val previous: StackFrame? = null
-
-    fun getVariable(name: String): Any? {
-        return variables[name] ?: previous?.getVariable(name)
-    }
-
-    fun withVariable(name: String, value: Any?, block: () -> Unit) {
-        variables[name] = value
-        block()
-        variables.remove(name)
-    }
-}
-
+private val variables = mutableMapOf<IrDeclaration, Any?>()
+private val unvisitedVariables = mutableMapOf<IrDeclaration, IrElement?>()
 
 abstract class AbstractTreeVisitor<T> : IrElementVisitor<Unit, T> {
-    val currentFrame: StackFrame = StackFrame()
-    protected fun withCall(expression: IrCall, block: () -> Unit) {
-
+    fun getVariable(decl: IrDeclaration): Any? {
+        return variables[decl]
     }
-    override fun visitCall(expression: IrCall, data: T) {
-        super.visitCall(expression, data)
+
+    private fun saveVariable(declaration: IrDeclaration, initializer: IrElement?) {
+        val value = try {
+            initializer?.extractValues()?.firstOrNull()
+        } catch (e: Exception) {
+            e.stackTraceToString().writeLog();
+            null
+        }
+        "saving variable ${declaration.nameForIrSerialization} $declaration $value".writeLog()
+        if (value != null) {
+            variables[declaration] = value
+        } else {
+            unvisitedVariables[declaration] = value
+        }
     }
 
     override fun visitVariable(declaration: IrVariable, data: T) {
         super.visitVariable(declaration, data)
+        saveVariable(declaration, declaration)
+    }
+
+    override fun visitField(declaration: IrField, data: T) {
+        super.visitField(declaration, data)
+        saveVariable(declaration, declaration.initializer)
     }
 
 
-    override fun visitBody(body: IrBody, data: T) {
-        super.visitBody(body, data)
-    }
+//    override fun visitSetField(expression: IrSetField, data: T) {
+//        super.visitSetField(expression, data)
+//        saveVariable(expression.symbol.owner, expression)
+//    }
 
-    override fun visitElement(element: IrElement, data: T) {
-        element.acceptChildren(this, data)
+    override fun visitSetValue(expression: IrSetValue, data: T) {
+        super.visitSetValue(expression, data)
+        saveVariable(expression.symbol.owner, expression)
     }
 }

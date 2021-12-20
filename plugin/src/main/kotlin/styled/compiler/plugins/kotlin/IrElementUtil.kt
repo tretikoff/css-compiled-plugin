@@ -66,12 +66,14 @@ fun String.replacePropertyAccessor(): String {
     return this.replace("<get-", "").replace("<set-", "").replace(">", "")
 }
 
+fun String.capitalize() =
+    replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+
 fun String.toCamelCase() =
-    split('-').joinToString("", transform = String::capitalize).decapitalize()
+    split('-').joinToString("", transform = String::capitalize).replaceFirstChar { it.lowercase() }
 
 fun String.normalizeGetSet() = replace("<", "").replace(">", "").toCamelCase()
 
-fun String.capitalize() = replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 
 fun String.normalize(): String {
     return this.replacePropertyAccessor().hyphenize()

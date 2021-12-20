@@ -14,6 +14,14 @@ lateinit var context: IrPluginContext
 
 private val logBuilder = StringBuilder()
 private val cssBuilder = StringBuilder()
+
+enum class Mode {
+    FULL,
+    STYLESHEET_STATIC
+}
+
+val mode = Mode.STYLESHEET_STATIC
+
 fun String.writeLog() {
     logBuilder.appendLine(this)
 }

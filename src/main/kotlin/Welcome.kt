@@ -15,21 +15,27 @@ external interface WelcomeProps : Props {
 
 data class WelcomeState(val name: String) : State
 
+@JsModule("./index.css")
+@JsNonModule
+external val indexCss: dynamic
+
 @JsExport
 class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(props) {
+    private val propColor = Color("#222222")
     init {
+        indexCss
         state = WelcomeState(props.name)
     }
 
     override fun RBuilder.render() {
-//        val listItemActiveBackgroundColor = Color("#e0eeff")
+        var varColor = Color("#e0eeff")
         styledDiv {
+            varColor = Color("#ffffff")
             css {
                 +"some-external-classname"
                 +WelcomeStyles.textContainer
-                backgroundColor = Color("#111111")
-//                backgroundColor = listItemActiveBackgroundColor
-//                color = textColor
+                backgroundColor = varColor
+                color = propColor
                 marginLeft = 3.px
 //                borderColor = XTheme.theme.skeletonBackgroundColor
             }
@@ -39,8 +45,11 @@ class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(prop
             css {
                 +"#${WelcomeStyles.getClassName { it::textProperty }}"
                 +WelcomeStyles.getClassSelector { it::textInput }
-//                adjacentSibling(WelcomeStyles.getClassSelector { it::textInput }) {
+//                adjacentSibling("div") {
 //                    paddingTop = 0.px
+//                }
+//                adjacentSibling(WelcomeStyles.getClassSelector { it::textInput }) {
+//                    paddingTop = 1.px
 //                }
                 alignItems = Align.flexEnd
             }

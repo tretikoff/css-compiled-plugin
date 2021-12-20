@@ -1,121 +1,243 @@
-[Ljava.lang.StackTraceElement;@5eaeb5f4
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+[Ljava.lang.StackTraceElement;@398e9d7d
+Get value name org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fb24 GET_VAR 'name: kotlin.String declared in <root>.WelcomeState.<init>' type=kotlin.String origin=INITIALIZE_PROPERTY_FROM_PARAMETER
+ 
+saving variable name org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrField@15fb27 null
+Get value other org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fb3d GET_VAR 'other: kotlin.Any? declared in <root>.WelcomeState.equals' type=kotlin.Any? origin=null
+ 
+saving variable tmp0_other_with_cast org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl@6e002015 null
+saving variable indexCss org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrField@15fb3f null
+saving variable propColor org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrField@15fb48 #222222
+saving variable varColor org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl@51dde81a #e0eeff
+saving variable varColor org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl@51dde81a #ffffff
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fb57 GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value varColor org.jetbrains.kotlin.ir.declarations.impl.IrVariableImpl@51dde81a GET_VAR 'var varColor: kotlinx.css.Color [var] declared in <root>.Welcome.render' type=kotlinx.css.Color origin=null
+ 
+Got value varColor #ffffff
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fb57 GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value <this> org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fb50 GET_VAR '<this>: <root>.Welcome declared in <root>.Welcome.render' type=<root>.Welcome origin=null
+ 
+Method not found: <set-color> with values background-color: #ffffff;
 
-setBackgroundColor with instance null and values , #111111
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+java.util.NoSuchElementException: Array contains no element matching the predicate.
+	at styled.compiler.plugins.kotlin.visitors.CssTransformerKt.invokeMethod(CssTransformer.kt:140)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitCall(CssTransformer.kt:81)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitCall(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl.accept(IrCallImpl.kt:47)
+	at org.jetbrains.kotlin.ir.expressions.IrExpression.transform(IrExpression.kt:33)
+	at org.jetbrains.kotlin.ir.expressions.IrExpression.transform(IrExpression.kt:26)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.transformChildren(IrBody.kt:62)
+	at org.jetbrains.kotlin.ir.visitors.IrElementTransformer$DefaultImpls.visitBody(IrElementTransformer.kt:66)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitBody(CssTransformer.kt:41)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitBody(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.visitors.IrElementTransformer$DefaultImpls.visitBlockBody(IrElementTransformer.kt:71)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitBlockBody(CssTransformer.kt:41)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitBlockBody(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBody.kt:54)
+	at org.jetbrains.kotlin.ir.expressions.IrBody.transform(IrBody.kt:27)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.transformChildren(IrFunction.kt:68)
+	at org.jetbrains.kotlin.ir.visitors.IrElementTransformer$DefaultImpls.visitDeclaration(IrElementTransformer.kt:46)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitDeclaration(CssTransformer.kt:41)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitDeclaration(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.visitors.IrElementTransformer$DefaultImpls.visitFunction(IrElementTransformer.kt:52)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitFunction(CssTransformer.kt:41)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitFunction(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.visitors.IrElementTransformer$DefaultImpls.visitSimpleFunction(IrElementTransformer.kt:53)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitSimpleFunction(CssTransformer.kt:41)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitSimpleFunction(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:28)
+	at org.jetbrains.kotlin.ir.IrElement$DefaultImpls.transform(IrElement.kt:32)
+	at org.jetbrains.kotlin.ir.IrElementBase.transform(IrElementBase.kt:19)
+	at org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl.transformChildren(IrFunctionExpressionImpl.kt:31)
+	at org.jetbrains.kotlin.ir.visitors.IrElementTransformer$DefaultImpls.visitExpression(IrElementTransformer.kt:78)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitExpression(CssTransformer.kt:41)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitExpression(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.visitors.IrElementTransformer$DefaultImpls.visitFunctionExpression(IrElementTransformer.kt:121)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitFunctionExpression(CssTransformer.kt:41)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitFunctionExpression(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl.accept(IrFunctionExpressionImpl.kt:23)
+	at org.jetbrains.kotlin.ir.expressions.IrExpression.transform(IrExpression.kt:33)
+	at org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression.transformChildren(IrFunctionAccessExpression.kt:48)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer$visitCall$str$1.invoke(CssTransformer.kt:67)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer$visitCall$str$1.invoke(CssTransformer.kt:66)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.collectCss(CssTransformer.kt:46)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitCall(CssTransformer.kt:66)
+	at styled.compiler.plugins.kotlin.visitors.CssTransformer.visitCall(CssTransformer.kt:41)
+	at org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl.accept(IrCallImpl.kt:47)
+	at org.jetbrains.kotlin.ir.expressions.IrExpression.transform(IrExpression.kt:33)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitCall(TreeVisitor.kt:23)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitCall(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl.accept(IrCallImpl.kt:47)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.acceptChildren(IrBody.kt:57)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:47)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBody(IrElementVisitor.kt:46)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitBody(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitBody(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:48)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitBlockBody(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitBlockBody(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBody.kt:54)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.acceptChildren(IrFunction.kt:58)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:47)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclaration(IrElementVisitor.kt:31)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitDeclaration(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitDeclaration(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunction(IrElementVisitor.kt:33)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFunction(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFunction(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSimpleFunction(IrElementVisitor.kt:34)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitSimpleFunction(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitSimpleFunction(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:28)
+	at org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl.acceptChildren(IrFunctionExpressionImpl.kt:27)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:47)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:54)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitExpression(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitExpression(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionExpression(IrElementVisitor.kt:91)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFunctionExpression(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFunctionExpression(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl.accept(IrFunctionExpressionImpl.kt:23)
+	at org.jetbrains.kotlin.ir.expressions.IrFunctionAccessExpression.acceptChildren(IrFunctionAccessExpression.kt:42)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:47)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitExpression(IrElementVisitor.kt:54)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitExpression(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitExpression(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitMemberAccess(IrElementVisitor.kt:75)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitMemberAccess(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitMemberAccess(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunctionAccess(IrElementVisitor.kt:76)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFunctionAccess(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFunctionAccess(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitCall(IrElementVisitor.kt:77)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitCall(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitCall(TreeVisitor.kt:21)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitCall(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl.accept(IrCallImpl.kt:47)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.acceptChildren(IrBody.kt:57)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:47)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBody(IrElementVisitor.kt:46)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitBody(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitBody(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitBlockBody(IrElementVisitor.kt:48)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitBlockBody(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitBlockBody(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.expressions.IrBlockBody.accept(IrBody.kt:54)
+	at org.jetbrains.kotlin.ir.declarations.IrFunction.acceptChildren(IrFunction.kt:58)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:47)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclaration(IrElementVisitor.kt:31)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitDeclaration(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitDeclaration(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFunction(IrElementVisitor.kt:33)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFunction(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFunction(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitSimpleFunction(IrElementVisitor.kt:34)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitSimpleFunction(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitSimpleFunction(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.declarations.IrSimpleFunction.accept(IrSimpleFunction.kt:28)
+	at org.jetbrains.kotlin.ir.declarations.IrClass.acceptChildren(IrClass.kt:60)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:47)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitDeclaration(IrElementVisitor.kt:31)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitDeclaration(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitDeclaration(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitClass(IrElementVisitor.kt:32)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitClass(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitClass(TreeVisitor.kt:40)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitClass(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.declarations.IrClass.accept(IrClass.kt:55)
+	at org.jetbrains.kotlin.ir.declarations.impl.IrFileImpl.acceptChildren(IrFileImpl.kt:84)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:47)
+	at styled.compiler.plugins.kotlin.visitors.TreeVisitor.visitElement(TreeVisitor.kt:14)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitPackageFragment(IrElementVisitor.kt:26)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitPackageFragment(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitPackageFragment(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.visitors.IrElementVisitor$DefaultImpls.visitFile(IrElementVisitor.kt:27)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFile(AbstractTreeVisitor.kt:15)
+	at styled.compiler.plugins.kotlin.visitors.AbstractTreeVisitor.visitFile(AbstractTreeVisitor.kt:15)
+	at org.jetbrains.kotlin.ir.declarations.impl.IrFileImpl.accept(IrFileImpl.kt:81)
+	at org.jetbrains.kotlin.ir.declarations.impl.IrModuleFragmentImpl.acceptChildren(IrModuleFragmentImpl.kt:40)
+	at styled.compiler.plugins.kotlin.CssIrGenerationExtension.generate(CssIrGenerationExtension.kt:68)
+	at org.jetbrains.kotlin.ir.backend.js.KlibKt.generateModuleFragmentWithPlugins$lambda-24(klib.kt:450)
+	at org.jetbrains.kotlin.psi2ir.Psi2IrTranslator.generateModuleFragment(Psi2IrTranslator.kt:88)
+	at org.jetbrains.kotlin.ir.backend.js.KlibKt.generateModuleFragmentWithPlugins(klib.kt:455)
+	at org.jetbrains.kotlin.ir.backend.js.KlibKt.generateKLib(klib.kt:189)
+	at org.jetbrains.kotlin.ir.backend.js.KlibKt.generateKLib$default(klib.kt:122)
+	at org.jetbrains.kotlin.cli.js.K2JsIrCompiler.doExecute(K2JsIrCompiler.kt:264)
+	at org.jetbrains.kotlin.cli.js.K2JSCompiler.doExecute(K2JSCompiler.java:178)
+	at org.jetbrains.kotlin.cli.js.K2JSCompiler.doExecute(K2JSCompiler.java:71)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:92)
+	at org.jetbrains.kotlin.cli.common.CLICompiler.execImpl(CLICompiler.kt:44)
+	at org.jetbrains.kotlin.cli.common.CLITool.exec(CLITool.kt:98)
+	at org.jetbrains.kotlin.incremental.IncrementalJsCompilerRunner.runCompiler(IncrementalJsCompilerRunner.kt:193)
+	at org.jetbrains.kotlin.incremental.IncrementalJsCompilerRunner.runCompiler(IncrementalJsCompilerRunner.kt:78)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileIncrementally(IncrementalCompilerRunner.kt:357)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileIncrementally$default(IncrementalCompilerRunner.kt:299)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileImpl$rebuild(IncrementalCompilerRunner.kt:118)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compileImpl(IncrementalCompilerRunner.kt:169)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:80)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile$default(IncrementalCompilerRunner.kt:71)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execJsIncrementalCompiler(CompileServiceImpl.kt:564)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execJsIncrementalCompiler(CompileServiceImpl.kt:100)
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1802)
+	at jdk.internal.reflect.GeneratedMethodAccessor53.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:712)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:587)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:828)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:705)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:399)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:704)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
 
-CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-  $receiver: CONST Int type=kotlin.Int value=3
-
-getPx with instance null and values 3
-setMarginLeft with instance null and values background-color: #111111;
-, 3px
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-setAlignItems with instance null and values , flex-end
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-  $receiver: CONST Int type=kotlin.Int value=5
-
-getPx with instance null and values 5
-padding with instance null and values , 5px
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-grow with instance null and values padding: 5px;
-, GROW_SHRINK
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-CALL 'public final fun rgb (red: kotlin.Int, green: kotlin.Int, blue: kotlin.Int): kotlinx.css.Color declared in kotlinx.css' type=kotlinx.css.Color origin=null
-  red: CONST Int type=kotlin.Int value=8
-  green: CONST Int type=kotlin.Int value=97
-  blue: CONST Int type=kotlin.Int value=22
-
-rgb with instance null and values 8, 97, 22
-setBackgroundColor with instance null and values padding: 5px;
-flex: 1.0 1.0 auto;
-, rgb(8, 97, 22)
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-CALL 'public final fun rgb (red: kotlin.Int, green: kotlin.Int, blue: kotlin.Int): kotlinx.css.Color declared in kotlinx.css' type=kotlinx.css.Color origin=null
-  red: CONST Int type=kotlin.Int value=56
-  green: CONST Int type=kotlin.Int value=246
-  blue: CONST Int type=kotlin.Int value=137
-
-rgb with instance null and values 56, 246, 137
-setColor with instance null and values padding: 5px;
-flex: 1.0 1.0 auto;
-background-color: rgb(8, 97, 22);
-, rgb(56, 246, 137)
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-  $receiver: CONST Int type=kotlin.Int value=5
-
-getPx with instance null and values 5
-margin with instance null and values , 5px
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-  $receiver: CONST Int type=kotlin.Int value=15
-
-getPx with instance null and values 15
-CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-  $receiver: CONST Int type=kotlin.Int value=18
-
-getPx with instance null and values 18
-padding with instance null and values margin: 5px;
-, 15px, 18px
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-CALL 'public final fun <get-w500> (): kotlinx.css.FontWeight declared in kotlinx.css.FontWeight.Companion' type=kotlinx.css.FontWeight origin=GET_PROPERTY
-  $this: GET_OBJECT 'CLASS OBJECT name:Companion modality:FINAL visibility:public [companion] superTypes:[kotlin.Any]' type=kotlinx.css.FontWeight.Companion
-
-getW500 with instance kotlinx.css.FontWeight$Companion@83c0d4d and values 
-<<<<500
-setFontWeight with instance null and values margin: 5px;
-padding: 15px 18px;
-, 500
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-CALL 'public final fun <get-unit> (): kotlinx.css.LinearDimension declared in <root>' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-  $receiver: CONST Int type=kotlin.Int value=2
-
-FUN name:<get-unit> visibility:public modality:FINAL <> ($receiver:kotlin.Int) returnType:kotlinx.css.LinearDimension
-  correspondingProperty: PROPERTY name:unit visibility:public modality:FINAL [val]
-  $receiver: VALUE_PARAMETER name:<this> type:kotlin.Int
-  BLOCK_BODY
-    RETURN type=kotlin.Nothing from='public final fun <get-unit> (): kotlinx.css.LinearDimension declared in <root>'
-      CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-        $receiver: CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
-          $this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
-          other: CONST Int type=kotlin.Int value=8
-
-CALL 'public final fun <get-px> (): kotlinx.css.LinearDimension declared in kotlinx.css' type=kotlinx.css.LinearDimension origin=GET_PROPERTY
-  $receiver: CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
-    $this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
-    other: CONST Int type=kotlin.Int value=8
-
-CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
-  $this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
-  other: CONST Int type=kotlin.Int value=8
-
-Get value <this> GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
-
-<<<<16
-CALL 'public final fun times (other: kotlin.Int): kotlin.Int [operator] declared in kotlin.Int' type=kotlin.Int origin=MUL
-  $this: GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
-  other: CONST Int type=kotlin.Int value=8
-
-Get value <this> GET_VAR '<this>: kotlin.Int declared in <root>.<get-unit>' type=kotlin.Int origin=null
-
-<<<<16
-getPx with instance null and values 16
->>>>>16px
-setFontSize with instance null and values margin: 5px;
-padding: 15px 18px;
-font-weight: 500;
-, 16px
-Get value $this$css GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textProperty$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
-
-setAlignContent with instance null and values , end
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fb57 GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fb5d GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.Welcome.render.<anonymous>.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value <this> org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbb7 GET_VAR '<this>: <root>.WelcomeStyles declared in <root>.WelcomeStyles' type=<root>.WelcomeStyles origin=null
+ 
+Get value <this> org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbb7 GET_VAR '<this>: <root>.WelcomeStyles declared in <root>.WelcomeStyles' type=<root>.WelcomeStyles origin=null
+ 
+saving variable textContainer$delegate org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrField@15fbbb null
+Get value <this> org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbb7 GET_VAR '<this>: <root>.WelcomeStyles declared in <root>.WelcomeStyles' type=<root>.WelcomeStyles origin=null
+ 
+Get value <this> org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbb7 GET_VAR '<this>: <root>.WelcomeStyles declared in <root>.WelcomeStyles' type=<root>.WelcomeStyles origin=null
+ 
+saving variable textInput$delegate org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrField@15fbc5 null
+Get value <this> org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbb7 GET_VAR '<this>: <root>.WelcomeStyles declared in <root>.WelcomeStyles' type=<root>.WelcomeStyles origin=null
+ 
+Get value <this> org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbb7 GET_VAR '<this>: <root>.WelcomeStyles declared in <root>.WelcomeStyles' type=<root>.WelcomeStyles origin=null
+ 
+saving variable textProperty$delegate org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrField@15fbcf null
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbbd GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbbd GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbbd GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbbd GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textContainer$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbc7 GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbc7 GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbc7 GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbc7 GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textInput$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 
+Get value $this$css org.jetbrains.kotlin.ir.declarations.persistent.PersistentIrValueParameter@15fbd1 GET_VAR '$this$css: kotlinx.css.CssBuilder declared in <root>.WelcomeStyles.textProperty$delegate.<anonymous>' type=kotlinx.css.CssBuilder origin=null
+ 

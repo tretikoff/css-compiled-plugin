@@ -1,5 +1,6 @@
 package styled.compiler.plugins.kotlin.visitors
 
+import kotlinx.css.px
 import org.jetbrains.kotlin.builtins.PrimitiveType
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrFile
@@ -14,6 +15,7 @@ import org.jetbrains.kotlin.ir.util.fileOrNull
 import org.jetbrains.kotlin.ir.util.statements
 import styled.compiler.plugins.kotlin.exceptions.ValueExtractionException
 import styled.compiler.plugins.kotlin.name
+import styled.compiler.plugins.kotlin.replacePropertyAccessor
 import styled.compiler.plugins.kotlin.writeLog
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObject
@@ -68,47 +70,59 @@ fun IrType.getClazz(): KClass<*>? {
         if (isPrimitiveType()) {
             return getPrimitiveType().getClazz()
         }
-        return Class.forName(clazzName).kotlin
+        return try {
+            Class.forName(clazzName).kotlin
+        } catch (e: ClassNotFoundException) {
+            null
+        }
     }
 }
 
 class PropertyVisitor(private val values: MutableList<Any?>) : AbstractTreeVisitor<StringBuilder>() {
-    override fun visitCall(expression: IrCall, data: StringBuilder) = withCall(expression) {
-        super.visitCall(expression, data)
+    override fun visitCall(expression: IrCall, data: StringBuilder) {
         val subValues = expression.extractValues()
         expression.dispatchReceiver?.let { it ->
-            val clazz = it.type.getClazz() ?: return@withCall
+            val clazz = it.type.getClazz() ?: return
             val value = if (it.type.isCompanionCall()) {
-                val companion =
-                    clazz.companionObject ?: throw ValueExtractionException("No companion on class $clazz")
+                val companion = clazz.companionObject
+                    ?: throw ValueExtractionException("No companion on class $clazz")
                 companion.java.invokeMethod(companion.objectInstance, expression.name, *subValues)
             } else {
                 clazz.java.invokeMethod(subValues[0]!!, expression.name, *(subValues.copyOfRange(1, subValues.size)))
             }
             values.add(value)
-            return@withCall
+            return
         }
         try {
             expression.executeExtension(subValues)
         } catch (e: ClassNotFoundException) {
-            expression.symbol.owner.dump().writeLog()
-            val extReceiverValue = expression.extensionReceiver?.extractDirectValues()?.firstOrNull() ?: return@withCall
-            currentFrame.withVariable("<this>", extReceiverValue) {
-                expression.symbol.owner.body?.let { body ->
-                    val bvalues = body.extractDirectValues()
-                    values.add(bvalues.single())
+            interpret(expression)
+//            expression.symbol.owner.body?.let { body ->
+//                val bvalues = body.extractDirectValues()
+//                values.add(bvalues.single())
+//            }
+        }
+    }
+
+    private fun interpret(expression: IrCall) {
+        // TODO move unit to common code to get access via reflection
+        if (expression.name.replacePropertyAccessor() == "unit") {
+            val value = expression.extensionReceiver?.extractDirectValues()?.firstOrNull()
+            if (value is Number) {
+                val transformed = when (value) {
+                    is Int -> value * 8
+                    is Double -> value * 8
+                    else -> return
                 }
+                values.add(transformed.px)
             }
         }
     }
 
     override fun visitBody(body: IrBody, data: StringBuilder) {
-        super.visitBody(body, data)
         body.statements.forEach {
             if (it is IrReturn) {
                 values.add(it.extractValues().single())
-            } else {
-                throw ValueExtractionException("Cannot interpret long statement bodies")
             }
         }
     }
@@ -133,7 +147,6 @@ class PropertyVisitor(private val values: MutableList<Any?>) : AbstractTreeVisit
     }
 
     override fun visitConstructorCall(expression: IrConstructorCall, data: StringBuilder) {
-        super.visitConstructorCall(expression, data)
         val clazzName = expression.type.classFqName?.asString()
         val clazz = Class.forName(clazzName)
         val subvalues = expression.extractValues()
@@ -143,24 +156,32 @@ class PropertyVisitor(private val values: MutableList<Any?>) : AbstractTreeVisit
     }
 
     override fun visitGetEnumValue(expression: IrGetEnumValue, data: StringBuilder) {
-        super.visitGetEnumValue(expression, data)
         val clazz = Class.forName(expression.type.classFqName?.asString())
         val enumValue = clazz.getMethod("valueOf", String::class.java).invoke(null, expression.name)
         values.add(enumValue)
     }
 
     override fun <T> visitConst(expression: IrConst<T>, data: StringBuilder) {
-        super.visitConst(expression, data)
         values.add(expression.value)
     }
 
-    override fun visitGetValue(expression: IrGetValue, data: StringBuilder) {
-        super.visitGetValue(expression, data)
+    override fun visitGetField(expression: IrGetField, data: StringBuilder) {
+        super.visitGetField(expression, data)
         val name = expression.symbol.owner.name.asString()
-        "Get value $name ${expression.dump()}".writeLog()
-        currentFrame.getVariable(name)?.let {
+        "Get field $name".writeLog()
+        getVariable(expression.symbol.owner)?.let {
+            "Got value $it".writeLog()
             values.add(it)
         }
+    }
+
+    override fun visitGetValue(expression: IrGetValue, data: StringBuilder) {
+        val name = expression.symbol.owner.name.asString()
+        "Get value $name ${expression.symbol.owner} ${expression.dump()} ".writeLog()
+        getVariable(expression.symbol.owner)?.let {
+            "Got value $name $it".writeLog()
+            values.add(it)
+        } ?: expression.acceptChildren(this, data)
     }
 
     override fun visitElement(element: IrElement, data: StringBuilder) {

@@ -35,7 +35,7 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
             }
             is IrCall -> {
                 if (element.name == "css") {
-                    element.transform(CssTransformer(className), data)
+                    element.transform(CssTransformer(className, isStylesheet = true), data)
                 } else {
                     element.acceptChildren(this, data);
                 }
@@ -46,3 +46,4 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
         }
     }
 }
+

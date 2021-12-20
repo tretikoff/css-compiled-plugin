@@ -33,7 +33,6 @@ class GlobalVariablesVisitor(private val prefix: String = "") : IrElementVisitor
                 varValues["$pack$prefix.$name"] = builder.toString()
             }
             is IrClass -> {
-                // TODO support prefixes for regular variables - something like package.Class1.Class2.(...).funName1.(...).varName
                 val name = element.name.asStringStripSpecialMarkers()
                 element.acceptChildrenVoid(GlobalVariablesVisitor("$prefix.$name"))
             }

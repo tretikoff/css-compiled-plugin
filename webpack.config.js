@@ -1,11 +1,19 @@
-const CopyPlugin = require("copy-webpack-plugin");
-
-module.exports = {
-    plugins: [
-        new CopyPlugin({
-            patterns: [
-                { from: "index.css", to: "index.css" },
+module.exports = function rules(plugins) {
+    return [
+        {
+            test: /\.css$/,
+            include: [
+                /[\/\\]plugin.*?[\/\\]static[\/\\]/,
             ],
-        }),
-    ],
+            use: [
+                'style-loader',
+                {
+                    loader : 'css-loader',
+                    options: {
+                        esModule: false
+                    }
+                }
+            ]
+        },
+    ]
 };
