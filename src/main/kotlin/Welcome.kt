@@ -14,16 +14,15 @@ external interface WelcomeProps : Props {
 }
 
 data class WelcomeState(val name: String) : State
-
-@JsModule("./index.css")
-@JsNonModule
-external val indexCss: dynamic
+//
+//@JsModule("./index.css")
+//@JsNonModule
+//external val indexCss: Nothing = definedExternally
 
 @JsExport
 class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(props) {
     private val propColor = Color("#222222")
     init {
-        indexCss
         state = WelcomeState(props.name)
     }
 

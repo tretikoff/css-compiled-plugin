@@ -65,7 +65,9 @@ class CssIrGenerationExtension(resourcesPath: String, varPath: String, private v
         // collect variables
         fragment.acceptChildrenVoid(GlobalVariablesVisitor())
         // then transform and collect css code
-        fragment.acceptChildren(TreeVisitor(), cssBuilder)
+        val treeVisitor = TreeVisitor()
+        fragment.acceptChildren(treeVisitor, cssBuilder)
+        treeVisitor.sourceFile.importStaticCss(cssFile)
 
         // Css variables
         val cssRootBuilder = StringBuilder().appendLine(":root {")

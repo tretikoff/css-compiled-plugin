@@ -2,6 +2,7 @@ package styled.compiler.plugins.kotlin.visitors
 
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrFile
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import styled.compiler.plugins.kotlin.isCssCall
 import styled.compiler.plugins.kotlin.isSetCustomProperty
@@ -11,11 +12,21 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
+
+
+@Suppress("UNREACHABLE_CODE")
 class TreeVisitor : AbstractTreeVisitor<StringBuilder>() {
+    lateinit var sourceFile: IrFile
     private var classNameId = AtomicInteger(0)
     private val generatedClassName: String
         get() = "ksc-static-${classNameId.incrementAndGet()}"
 
+    override fun visitFile(declaration: IrFile, data: StringBuilder) {
+        if (!::sourceFile.isInitialized) {
+            sourceFile = declaration
+        }
+        declaration.acceptChildren(this, data)
+    }
 
     override fun visitCall(expression: IrCall, data: StringBuilder) {
         super.visitCall(expression, data)
