@@ -2,112 +2,58 @@
 
 package styled.compiler.plugins.kotlin.visitors
 
-import kotlinx.css.CssBuilder
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstKind
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
-import org.jetbrains.kotlin.ir.visitors.IrElementTransformer
+import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
+import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import styled.compiler.plugins.kotlin.*
-import kotlin.reflect.full.safeCast
 
-var cssBuilderParameter: IrValueParameter? = null
-var css = CssBuilder()
+private var cssBuilderParameter: IrValueParameter? = null
 
-fun Class<*>.invokeMethod(instance: Any?, name: String, vararg values: Any?): Any? {
-    val normalizedName = name.normalizeGetSet()
-    try {
-        val method = methods.first { m ->
-            m.name == normalizedName &&
-                    m.parameterCount == values.size &&
-                    m.parameters.zip(values).all { (param, value) ->
-                        if (value == null) true else param.type.kotlin.safeCast(value) != null
-                    }
-        }
-        return method.invoke(instance, *values)
-    } catch (e: NoSuchElementException) {
-        "Method not found: $name with values ${values.joinToString()}".writeLog()
-        throw e
-    }
-}
-
-class CssTransformer(private val className: String = "", private val isStylesheet: Boolean = false) :
-    IrElementTransformer<StringBuilder> {
-    private fun collectCss(block: () -> Unit): String? {
-        css = CssBuilder("  ")
-        return try {
-            block()
-            css.toString()
-        } catch (e: Throwable) {
-            e.stackTraceToString().writeLog()
-            null
-        } finally {
+class CssTransformer(private val className: String, private val isStylesheet: Boolean = false) : IrElementTransformerVoid() {
+    private fun IrCall.acceptWithParameter() {
+        try {
+            cssBuilderParameter = getArgumentsWithIr().firstNotNullOfOrNull { (_, expr) ->
+                (expr as? IrFunctionExpressionImpl)?.function?.extensionReceiverParameter
+            }
+            transformChildren(this@CssTransformer, null)
             cssBuilderParameter = null
+        } catch (e: Exception) {
+            e.stackTraceToString().writeLog()
         }
     }
 
-    override fun visitCall(expression: IrCall, data: StringBuilder): IrElement {
+    override fun visitCall(expression: IrCall): IrExpression {
         val owner = expression.symbol.owner
         var updatedCall = expression
         val cssFun = cssBuilderParameter?.type?.classOrNull?.owner?.addClassFun
         if (owner.isPlus() && cssFun != null) {
-            return expression.transform(StyleSheetTransformer(), data)
+            return expression.transform(StyleSheetCallTransformer(), null)
         } else if (expression.isCssCall() || expression.name == "css") {
-            cssBuilderParameter = expression.getArgumentsWithIr().mapNotNull { (_, expr) ->
-                (expr as? IrFunctionExpressionImpl)?.function?.extensionReceiverParameter
-            }.firstOrNull()
-            val str = collectCss {
-                expression.transformChildren(this, data)
-            }
-            str?.let {
-                data.appendLine(".$className {").append(str).appendLine("}")
-            }
-        } else if (owner.isInCssLib()) {
-            // https://stackoverflow.com/questions/48635210/how-to-obtain-properties-or-function-declared-in-kotlin-extensions-by-java-refle
-            val classes = listOf(Class.forName("kotlinx.css.StyledElementKt"), Class.forName("kotlinx.css.CssBuilder"))
-            // TODO custom common-code CssBuilder extensions
-            // TODO extensions with blocks and ampersands
-            val values = expression.extractValues()
-            try {
-                val clazz = classes.firstOrNull { it.containsMethod(expression.name.normalizeGetSet()) } ?: return updatedCall
-                if (expression.extensionReceiver != null) {
-                    clazz.invokeMethod(null, expression.name, css, *values)
-                } else {
-                    clazz.invokeMethod(null, expression.name, *values)
-                }
-            } catch (e: Throwable) {
-                e.stackTraceToString().writeLog()
-            }
-            cssFun?.let { css ->
-                when (mode) {
-                    Mode.FULL -> updatedCall = expression.transformWith(css, className)
-                    Mode.STYLESHEET_STATIC -> if (isStylesheet) {
-                        updatedCall = expression.transformWith(css, className)
-                    }
+            expression.acceptWithParameter()
+        } else if (owner.isInCssLib() && cssFun != null) {
+            when (mode) {
+                Mode.FULL -> updatedCall = expression.transformWith(cssFun, className)
+                Mode.STYLESHEET_STATIC -> if (isStylesheet) {
+                    updatedCall = expression.transformWith(cssFun, className)
                 }
             }
-        } else {
-//            "$$$${owner.packageStr} ${owner.name} ${owner.dump()}".writeLog()
         }
         return updatedCall
     }
 
-    private fun Class<*>.containsMethod(name: String): Boolean {
-        for (method in methods) {
-            if (method.name == name) return true
-        }
-        return false
-    }
-
-    override fun visitElement(element: IrElement, data: StringBuilder): IrElement {
-        element.transformChildren(this, data)
+    override fun visitElement(element: IrElement): IrElement {
+        element.transformChildrenVoid(this)
         return element
     }
 }

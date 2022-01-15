@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.fileOrNull
 import org.jetbrains.kotlin.ir.util.statements
 import styled.compiler.plugins.kotlin.exceptions.ValueExtractionException
+import styled.compiler.plugins.kotlin.invokeMethod
 import styled.compiler.plugins.kotlin.name
 import styled.compiler.plugins.kotlin.replacePropertyAccessor
 import styled.compiler.plugins.kotlin.writeLog

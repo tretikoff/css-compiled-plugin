@@ -69,10 +69,11 @@ class CssComponentRegistrar : ComponentRegistrar {
             project: Project,
             configuration: CompilerConfiguration
         ) {
-            val resourcesPath = configuration[CssCommandLineProcessor.ARG_RESOURCES] ?: ""
-            val tempPath = configuration[CssCommandLineProcessor.ARG_SAVED_VARS] ?: ""
-            val subprojectTempPaths =
-                configuration[CssCommandLineProcessor.ARG_SUBPROJECT_SAVED_VARS]?.split(", ") ?: listOf()
+            val resourcesPath = configuration[CssCommandLineProcessor.ARG_RESOURCES] ?: return
+            val tempPath = configuration[CssCommandLineProcessor.ARG_SAVED_VARS] ?: return
+            val vars = configuration[CssCommandLineProcessor.ARG_SUBPROJECT_SAVED_VARS]
+
+            val subprojectTempPaths = if (!vars.isNullOrEmpty()) vars.split("_") else listOf()
 
             val extension = CssIrGenerationExtension(resourcesPath, tempPath, subprojectTempPaths)
 

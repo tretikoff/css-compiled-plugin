@@ -3,14 +3,15 @@ plugins {
     id("CssGradlePlugin")
 }
 
-val cssVersion = "1.0.0-pre.278-kotlin-1.6.0"
+val kotlin_version = "1.6.0"
+val styled_next_version = "1.0-pre.278-kotlin-$kotlin_version"
 
 kotlin {
     js(IR)
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$cssVersion")
+                implementation("org.jetbrains.kotlin-wrappers:kotlin-styled-next:$styled_next_version")
             }
         }
         create("jsAsync_PDFViewer")

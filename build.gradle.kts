@@ -33,6 +33,7 @@ dependencies {
     implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$react_dom_version")
     implementation("org.jetbrains.kotlin-wrappers:kotlin-styled-next:$styled_next_version")
     implementation(project(":shared"))
+    implementation(project(":stylesheets"))
     testImplementation(kotlin("test"))
 }
 

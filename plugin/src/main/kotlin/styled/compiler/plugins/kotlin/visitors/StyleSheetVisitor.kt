@@ -16,14 +16,13 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
     override fun visitElement(element: IrElement, data: StringBuilder) {
         when (element) {
             is IrDelegatingConstructorCall -> {
-                arguments = // Skipping non-constant values as don't know how to evaluate them right now
-                    element.getArgumentsWithIr()
-                        // Skipping non-constant values as don't know how to evaluate them right now
-                        .mapNotNull { (parameter, expr) ->
-                            (expr as? IrConst<*>)?.let { e ->
-                                parameter.name.asString() to e.value
-                            }
-                        }.toMap().also { name = it["name"]?.toString() ?: name }
+                arguments = element.getArgumentsWithIr()
+                    // Skipping non-constant values as don't know how to evaluate them right now
+                    .mapNotNull { (parameter, expr) ->
+                        (expr as? IrConst<*>)?.let { e ->
+                            parameter.name.asString() to e.value
+                        }
+                    }.toMap().also { name = it["name"]?.toString() ?: name }
             }
             is IrProperty -> {
                 val propName = element.name.asString()
@@ -35,7 +34,10 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
             }
             is IrCall -> {
                 if (element.name == "css") {
-                    element.transform(CssTransformer(className, isStylesheet = true), data)
+                    val css = StringBuilder()
+                    element.accept(CssCollector(className), css)
+                    data.append(css)
+                    element.transform(CssTransformer(className, isStylesheet = true), null)
                 } else {
                     element.acceptChildren(this, data);
                 }

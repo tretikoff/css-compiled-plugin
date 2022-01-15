@@ -7,6 +7,7 @@ import react.RBuilder
 import react.RComponent
 import react.State
 import react.dom.attrs
+import runtime.html.WelcomeStyles
 import styled.*
 
 external interface WelcomeProps : Props {
@@ -14,10 +15,6 @@ external interface WelcomeProps : Props {
 }
 
 data class WelcomeState(val name: String) : State
-//
-//@JsModule("./index.css")
-//@JsNonModule
-//external val indexCss: Nothing = definedExternally
 
 @JsExport
 class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(props) {

@@ -12,9 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
-
-
-@Suppress("UNREACHABLE_CODE")
 class TreeVisitor : AbstractTreeVisitor<StringBuilder>() {
     lateinit var sourceFile: IrFile
     private var classNameId = AtomicInteger(0)
@@ -31,7 +28,10 @@ class TreeVisitor : AbstractTreeVisitor<StringBuilder>() {
     override fun visitCall(expression: IrCall, data: StringBuilder) {
         super.visitCall(expression, data)
         if (expression.isCssCall()) {
-            expression.transform(CssTransformer(generatedClassName), data)
+            val css = StringBuilder()
+            expression.accept(CssCollector(generatedClassName), css)
+            data.append(css)
+            expression.transform(CssTransformer(generatedClassName), null)
         } else if (expression.isSetCustomProperty()) {
             val name = expression.getValueArgument(0)
             val value = expression.getValueArgument(1)

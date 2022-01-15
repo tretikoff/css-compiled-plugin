@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrClass
 import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrGetEnumValue
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.util.getAllSuperclasses
@@ -12,6 +13,7 @@ import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.util.getPackageFragment
 import org.jetbrains.kotlin.util.collectionUtils.filterIsInstanceMapNotNull
 import java.util.*
+import kotlin.reflect.full.safeCast
 
 fun IrCall.isCssCall(): Boolean {
     return symbol.signature?.render()?.startsWith("styled/css") ?: false
@@ -81,4 +83,21 @@ fun String.normalize(): String {
 
 fun createStyleSheetClassname(name: String, propertyName: String): String {
     return "$name-$propertyName"
+}
+
+fun Class<*>.invokeMethod(instance: Any?, name: String, vararg values: Any?): Any? {
+    val normalizedName = name.normalizeGetSet()
+    try {
+        val method = methods.first { m ->
+            m.name == normalizedName &&
+                    m.parameterCount == values.size &&
+                    m.parameters.zip(values).all { (param, value) ->
+                        if (value == null) true else param.type.kotlin.safeCast(value) != null
+                    }
+        }
+        return method.invoke(instance, *values)
+    } catch (e: NoSuchElementException) {
+        "Method not found: $name with values ${values.joinToString()}".writeLog()
+        throw e
+    }
 }
