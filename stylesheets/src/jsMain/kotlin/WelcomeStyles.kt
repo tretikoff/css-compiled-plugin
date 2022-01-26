@@ -23,6 +23,23 @@ object WelcomeStyles : StyleSheet("WelcomeStyles", isStatic = true) {
     }
 }
 
-object Fonts : StyleSheet("Fonts", WelcomeStyles)
+open class FontBase(name: String = "name") : StyleSheet(name) {
+    open val container by css {
+        position = Position.absolute
+        top = 0.px
+        bottom = 0.px
+    }
+}
+
+object Fonts : FontBase() {  // TODO
+    override val container by css {
+        +super.container
+
+        specific {
+            top = 5.px
+            bottom = 10.px
+        }
+    }
+}
 
 val Int.unit get() = (this * 8).px

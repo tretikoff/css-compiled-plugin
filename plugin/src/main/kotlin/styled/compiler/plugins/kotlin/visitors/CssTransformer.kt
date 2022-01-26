@@ -26,7 +26,7 @@ class CssTransformer(private val className: String, private val isStylesheet: Bo
             cssBuilderParameter = getArgumentsWithIr().firstNotNullOfOrNull { (_, expr) ->
                 (expr as? IrFunctionExpressionImpl)?.function?.extensionReceiverParameter
             }
-            transformChildren(this@CssTransformer, null)
+            transformChildrenVoid(this@CssTransformer)
             cssBuilderParameter = null
         } catch (e: Exception) {
             e.stackTraceToString().writeLog()

@@ -84,7 +84,7 @@ class CssIrGenerationExtension(resourcesPath: String, varPath: String, private v
         // then transform and collect css code
         val treeVisitor = TreeVisitor()
         fragment.acceptChildren(treeVisitor, cssBuilder)
-        (files + cssFile).forEach(treeVisitor.sourceFile::importStaticCss)
+        (files + cssFile).forEach(treeVisitor.mainFile::importStaticCss)
 
         // Css variables
         val entries = GlobalVariablesVisitor.cssVarValues.entries

@@ -55,6 +55,7 @@ class CssGradlePlugin : KotlinCompilerPluginSupportPlugin {
             val depProjects = deps.map { it.dependencyProject }.filter { it.plugins.hasPlugin(this.javaClass) }
             val tempFiles = depProjects.joinToString("_") { it.savedVarPath }
             val varFile = project.savedVarPath
+            println("-------")
             listOf(
                 SubpluginOption(key = "var_file", value = varFile),
                 SubpluginOption(key = "subprojects", value = tempFiles),

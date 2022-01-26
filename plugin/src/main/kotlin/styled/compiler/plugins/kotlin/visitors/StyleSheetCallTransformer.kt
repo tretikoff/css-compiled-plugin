@@ -12,10 +12,6 @@ import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import styled.compiler.plugins.kotlin.*
 
-/**
- * Inserts classname instead of adding and injecting stylesheet
- */
-
 val IrDeclarationContainer.addClassFun: IrSimpleFunction?
     get() = functionDecls.firstOrNull(IrFunction::isAddClassFun)?.symbol?.owner as? IrSimpleFunction
 
@@ -29,6 +25,9 @@ val IrDeclarationContainer.functionDecls: List<IrFunction>
 
 fun IrFunction.getConstCssFunction() = (parent as? IrDeclarationContainer)?.addClassFun
 
+/**
+ * Inserts classname instead of adding and injecting stylesheet
+ */
 class StyleSheetCallTransformer : IrElementTransformerVoid() {
     private var className: String = ""
     private var name: String = ""
@@ -38,10 +37,11 @@ class StyleSheetCallTransformer : IrElementTransformerVoid() {
         var updatedCall = expression
         val callee = expression.symbol.owner
         val cssFun = callee.getConstCssFunction()
-        if (expression.symbol.owner.isGetter()) {
+        if (callee.isGetter()) {
             className = createStyleSheetClassname(name, expression.name.replacePropertyAccessor())
         }
         if (callee.isPlus() && cssFun != null) {
+            "transforming $className call".writeLog()
             updatedCall = expression.transformWith(cssFun, className)
         }
         return updatedCall

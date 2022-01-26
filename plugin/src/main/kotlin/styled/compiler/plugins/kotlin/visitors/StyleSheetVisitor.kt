@@ -9,6 +9,7 @@ import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import styled.compiler.plugins.kotlin.createStyleSheetClassname
 import styled.compiler.plugins.kotlin.name
+import styled.compiler.plugins.kotlin.writeLog
 
 class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, StringBuilder> {
     var className = name
@@ -34,9 +35,13 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
             }
             is IrCall -> {
                 if (element.name == "css") {
-                    val css = StringBuilder()
-                    element.accept(CssCollector(className), css)
-                    data.append(css)
+                    try {
+                        val css = StringBuilder()
+                        element.accept(CssCollector(className), css)
+                        data.append(css)
+                    } catch (e: Throwable) {
+                        "_______________".writeLog()
+                    }
                     element.transform(CssTransformer(className, isStylesheet = true), null)
                 } else {
                     element.acceptChildren(this, data);
