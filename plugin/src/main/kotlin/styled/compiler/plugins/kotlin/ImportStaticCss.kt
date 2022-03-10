@@ -21,69 +21,77 @@ import java.util.concurrent.atomic.AtomicInteger
 
 private val refCount = AtomicInteger(0)
 
-fun IrFile.importStaticCss(cssFile: File) {
+internal enum class LogLevel {
+    ALL,
+    ERROR
+}
+internal fun tryLog(operation: String, level: LogLevel = LogLevel.ERROR, block: () -> Unit) {
     try {
-        ">>>>>${cssFile.path}".writeLog()
-        val jsModule = context.referenceConstructors(FqName("kotlin.js.JsModule")).first()
-        val definedExt = context.referenceProperties(FqName("kotlin.js.definedExternally")).first().owner.getter!!
-        val jsNonModule = context.referenceConstructors(FqName("kotlin.js.JsNonModule")).first()
-        val varName = "indexCss" + refCount.incrementAndGet()
-
-        val cssFileProperty = context.irFactory.buildProperty {
-            origin = IrDeclarationOrigin.DEFINED
-            name = Name.identifier(varName)
-            visibility = DescriptorVisibilities.PUBLIC
-            modality = Modality.FINAL
-            isDelegated = false
-            isLateinit = false
-            isConst = false
-            isVar = false
-            isExternal = true
-        }
-        val cssFileBackingField = context.irFactory.buildField {
-            origin = IrDeclarationOrigin.PROPERTY_BACKING_FIELD
-            name = Name.identifier(varName)
-            type = definedExt.returnType
-            visibility = DescriptorVisibilities.PRIVATE
-            isExternal = true
-            isFinal = true
-            isStatic = true
-        }
-        val getterFun = context.irFactory.buildFun {
-            origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
-            name = Name.identifier("<get-$varName>")
-            returnType = definedExt.returnType
-        }
-        cssFileBackingField.initializer = IrExpressionBodyImpl(0, 0) {
-            expression =
-                IrCallImpl(0, 0, definedExt.returnType, definedExt.symbol, 0, 0, IrStatementOrigin.GET_PROPERTY)
-        }
-        getterFun.body = IrBlockBodyImpl(0, 0) {
-            statements.add(
-                0, IrReturnImpl(
-                    0, 0, context.irBuiltIns.nothingType, getterFun.symbol,
-                    IrGetFieldImpl(0, 0, cssFileBackingField.symbol, cssFileBackingField.type)
-                )
-            )
-        }
-        getterFun.correspondingPropertySymbol = cssFileProperty.symbol
-        cssFileProperty.getter = getterFun
-
-        cssFileBackingField.parent = this
-        cssFileProperty.parent = this
-        getterFun.parent = this
-
-        val jsModuleAnnotation = IrConstructorCallImpl(0, 0, context.irBuiltIns.annotationType, jsModule, 0, 0, 1)
-        jsModuleAnnotation.putValueArgument(0, cssFile.path.toIrConst(context.irBuiltIns.stringType))
-        cssFileProperty.annotations = listOf(
-            jsModuleAnnotation,
-            IrConstructorCallImpl(0, 0, context.irBuiltIns.annotationType, jsNonModule, 0, 0, 0),
-        )
-
-        declarations.add(cssFileBackingField)
-        declarations.add(cssFileProperty)
-        "<<<<<${cssFile.path}".writeLog()
+        if (level == LogLevel.ALL) "$operation started".writeLog()
+        block()
+        if (level == LogLevel.ALL) "$operation finished".writeLog()
     } catch (e: Throwable) {
-        "Error importing css file: ${e.stackTraceToString()}".writeLog()
+        "Error $operation: ${e.stackTraceToString()}".writeLog()
     }
+}
+
+fun IrFile.importStaticCss(cssFile: File) = tryLog("CSS Import ${cssFile.path}", LogLevel.ALL) {
+    val jsModule = context.referenceConstructors(FqName("kotlin.js.JsModule")).first()
+    val definedExt = context.referenceProperties(FqName("kotlin.js.definedExternally")).first().owner.getter!!
+    val jsNonModule = context.referenceConstructors(FqName("kotlin.js.JsNonModule")).first()
+    val varName = "indexCss" + refCount.incrementAndGet()
+
+    val cssFileProperty = context.irFactory.buildProperty {
+        origin = IrDeclarationOrigin.DEFINED
+        name = Name.identifier(varName)
+        visibility = DescriptorVisibilities.PUBLIC
+        modality = Modality.FINAL
+        isDelegated = false
+        isLateinit = false
+        isConst = false
+        isVar = false
+        isExternal = true
+    }
+    val cssFileBackingField = context.irFactory.buildField {
+        origin = IrDeclarationOrigin.PROPERTY_BACKING_FIELD
+        name = Name.identifier(varName)
+        type = definedExt.returnType
+        visibility = DescriptorVisibilities.PRIVATE
+        isExternal = true
+        isFinal = true
+        isStatic = true
+    }
+    val getterFun = context.irFactory.buildFun {
+        origin = IrDeclarationOrigin.DEFAULT_PROPERTY_ACCESSOR
+        name = Name.identifier("<get-$varName>")
+        returnType = definedExt.returnType
+    }
+    cssFileBackingField.initializer = IrExpressionBodyImpl(0, 0) {
+        expression =
+            IrCallImpl(0, 0, definedExt.returnType, definedExt.symbol, 0, 0, IrStatementOrigin.GET_PROPERTY)
+    }
+    getterFun.body = IrBlockBodyImpl(0, 0) {
+        statements.add(
+            0, IrReturnImpl(
+                0, 0, context.irBuiltIns.nothingType, getterFun.symbol,
+                IrGetFieldImpl(0, 0, cssFileBackingField.symbol, cssFileBackingField.type)
+            )
+        )
+    }
+    getterFun.correspondingPropertySymbol = cssFileProperty.symbol
+    cssFileProperty.getter = getterFun
+
+    cssFileBackingField.parent = this
+    cssFileProperty.parent = this
+    getterFun.parent = this
+
+    val jsModuleAnnotation = IrConstructorCallImpl(0, 0, context.irBuiltIns.annotationType, jsModule, 0, 0, 1)
+    jsModuleAnnotation.putValueArgument(0, cssFile.path.toIrConst(context.irBuiltIns.stringType))
+    cssFileProperty.annotations = listOf(
+        jsModuleAnnotation,
+        IrConstructorCallImpl(0, 0, context.irBuiltIns.annotationType, jsNonModule, 0, 0, 0),
+    )
+
+    declarations.add(cssFileBackingField)
+    declarations.add(cssFileProperty)
 }

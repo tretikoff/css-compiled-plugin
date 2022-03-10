@@ -9,8 +9,11 @@ import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import styled.compiler.plugins.kotlin.createStyleSheetClassname
 import styled.compiler.plugins.kotlin.name
-import styled.compiler.plugins.kotlin.writeLog
+import styled.compiler.plugins.kotlin.tryLog
 
+// TODO unaryPlus for stylesheet inside another stylesheet
+// TODO every file to different css file
+// TODO save css file paths which were traversed
 class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, StringBuilder> {
     var className = name
     private var arguments = mapOf<String, Any?>()
@@ -35,14 +38,12 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
             }
             is IrCall -> {
                 if (element.name == "css") {
-                    try {
+                    tryLog("Style sheet css traverse _______________") {
                         val css = StringBuilder()
                         element.accept(CssCollector(className), css)
                         data.append(css)
-                    } catch (e: Throwable) {
-                        "_______________".writeLog()
                     }
-                    element.transform(CssTransformer(className, isStylesheet = true), null)
+//                    element.transform(CssTransformer(className, isStylesheet = true), null)
                 } else {
                     element.acceptChildren(this, data);
                 }

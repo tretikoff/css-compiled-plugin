@@ -1,43 +1,60 @@
 package styled.compiler.plugins.kotlin.visitors
 
-import org.jetbrains.kotlin.ir.*
-import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.expressions.*
-import org.jetbrains.kotlin.ir.util.*
-import org.jetbrains.kotlin.name.*
+import org.jetbrains.kotlin.backend.common.push
+import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrMutableAnnotationContainer
+import org.jetbrains.kotlin.ir.declarations.name
+import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
+import org.jetbrains.kotlin.ir.util.isAnnotation
+import org.jetbrains.kotlin.name.FqName
 import styled.compiler.plugins.kotlin.*
-import java.util.concurrent.atomic.*
-import kotlin.collections.any
+import java.io.File
+import java.nio.file.Paths
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.collections.set
-import kotlin.collections.single
 
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
-class TreeVisitor : AbstractTreeVisitor<StringBuilder>() {
+class TreeVisitor(val filePrefix: String) : AbstractTreeVisitor<StringBuilder>() {
+    var cssFiles = ArrayDeque<File>()
+
     lateinit var mainFile: IrFile
     private lateinit var currentFile: IrFile
     private var classNameId = AtomicInteger(0)
     private val generatedClassName: String
         get() = "ksc-static-${classNameId.incrementAndGet()}"
 
+    // Every
     override fun visitFile(declaration: IrFile, data: StringBuilder) {
         if (!::mainFile.isInitialized) {
             mainFile = declaration
         }
         currentFile = declaration
-        declaration.acceptChildren(this, data)
+
+        val css = StringBuilder()
+        declaration.acceptChildren(this, css)
+        declaration.saveCss(css)
+    }
+
+    private fun IrFile.saveCss(css: StringBuilder) {
+        if (css.isNotEmpty()) {
+            val cssFile = Paths.get(filePrefix, "$name.css").toFile().create()
+            cssFile.writeText(css.toString())
+            cssFiles.push(cssFile)
+        }
     }
 
     override fun visitCall(expression: IrCall, data: StringBuilder) {
         super.visitCall(expression, data)
         if (expression.isCssCall()) {
-            try {
+            tryLog("Tree css build failed -----------------") {
                 val css = StringBuilder()
                 expression.accept(CssCollector(generatedClassName), css)
                 data.append(css)
-            } catch (e: Throwable) {
-                "-----------------".writeLog()
             }
             expression.transform(CssTransformer(generatedClassName), null)
         } else if (expression.isSetCustomProperty()) {

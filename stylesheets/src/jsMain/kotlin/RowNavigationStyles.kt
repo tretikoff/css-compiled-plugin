@@ -22,6 +22,12 @@ fun sidebarMenuItemStyles(): RowNavigationStyles = object : RowNavigationStyles(
     }
 }
 
+object red: StyleSheet("") {
+    val article by css {
+        color = Color.red
+    }
+}
+
 // TODO no generating when supertypes are not present
 object X : RowNavigationStyles("Sidebar.Menu.${name}") {
     override val content: RuleSet by css {

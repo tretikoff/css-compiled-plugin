@@ -33,8 +33,7 @@ private fun File.saveVariables(values: Map<String, String>) {
     }
 }
 
-private fun String.toLogFile() = Paths.get(this, "dump.xlog").toFile()
-private fun String.toCssFile() = Paths.get(this, "index.css").toFile()
+private fun String.resource(filename: String) = Paths.get(this, filename).toFile()
 
 private fun MutableList<File>.addCssFile(filename: String) = try {
     add(File(filename))
@@ -46,32 +45,66 @@ private fun MutableList<File>.addCssFile(filename: String) = try {
 
 fun File.create() = apply { parentFile.mkdirs(); createNewFile() }
 
-class CssIrGenerationExtension(resourcesPath: String, varPath: String, private val subprojectVarPaths: List<String>) :
+// У каждого плагина появляется список сгенерированных CSS файлов
+class CssIrGenerationExtension(private val resourcesPath: String, varPath: String, private val subprojectVarPaths: List<String>) :
     IrGenerationExtension {
-    private val logFile by lazy { resourcesPath.toLogFile().create() }
-    private val cssFile by lazy { resourcesPath.toCssFile().create() }
+    private val logFile by lazy { resourcesPath.resource("dump.xlog").create() }
+    private val mainCssFile by lazy { resourcesPath.resource("index.css").create() }
+    private val loadedSubprojFiles = mutableListOf<File>()
+    private val cssFilenamesCacheFile by lazy { resourcesPath.resource("cssSub.txt").create() }
     private val varFile by lazy { File(varPath).create() }
-    private val files = mutableListOf<File>()
+    private val files = mutableSetOf<File>() // Subproject css files to include
 
     private fun loadSavedSubprojectVariables() {
         subprojectVarPaths.forEach {
-            try {
-//                "Loading saved variables: $it".writeLog()
+            tryLog("Load variables file") {
                 File(it).reader().useLines { lines ->
                     lines.forEachIndexed { i, line ->
                         if (i == 0) {
-                            files.addCssFile(line)
+                            line.split(",").forEach { loadedSubprojFiles.addCssFile(it) }
                         } else {
                             val (name, value) = line.split(":")
                             GlobalVariablesVisitor.varValues[name] = value
                         }
                     }
                 }
-            } catch (e: Exception) {
-                "Failed to load variables file: $it".writeLog()
-                e.stackTraceToString().writeLog()
             }
         }
+    }
+
+    private fun saveCssVariables() {
+        // TODO write to separate file
+        // Css variables
+        val entries = GlobalVariablesVisitor.cssVarValues.entries
+        StringBuilder().apply {
+            if (entries.isNotEmpty()) {
+                appendLine(":root {")
+                entries.forEach { (name, value) -> appendLine("--$name: $value;") }
+                appendLine("}")
+                mainCssFile.writeText(toString())
+            }
+        }
+    }
+
+    private fun saveSubprojCssFiles() {
+        // TODO use relative paths everywhere
+        cssFilenamesCacheFile.writeText(files.joinToString("\n") { it.absolutePath })
+    }
+
+    private fun TreeVisitor.loadSubprojCssFiles() {
+        for (filename in cssFilenamesCacheFile.readLines()) {
+            files.add(File(filename))
+        }
+        files.addAll(cssFiles)
+    }
+
+    private fun TreeVisitor.importSubprojCssFiles() {
+        files.addAll(loadedSubprojFiles + mainCssFile)
+        files.forEach(mainFile::importStaticCss)
+    }
+
+    private fun File.saveCssFilenames() {
+        writeText(files.joinToString(",") { it.absolutePath } + "\n")
     }
 
     override fun generate(moduleFragment: IrModuleFragment, pluginContext: IrPluginContext) {
@@ -82,26 +115,18 @@ class CssIrGenerationExtension(resourcesPath: String, varPath: String, private v
         // collect variables
         fragment.acceptChildrenVoid(GlobalVariablesVisitor())
         // then transform and collect css code
-        val treeVisitor = TreeVisitor()
+        val treeVisitor = TreeVisitor(resourcesPath)
         fragment.acceptChildren(treeVisitor, cssBuilder)
-        (files + cssFile).forEach(treeVisitor.mainFile::importStaticCss)
+        treeVisitor.loadSubprojCssFiles()
+        treeVisitor.importSubprojCssFiles()
 
-        // Css variables
-        val entries = GlobalVariablesVisitor.cssVarValues.entries
-        val cssRootBuilder = StringBuilder().apply {
-            if (entries.isNotEmpty()) {
-                appendLine(":root {")
-                entries.forEach { (name, value) -> appendLine("--$name: $value;") }
-                appendLine("}")
-            }
-        }
 
-//        if (cssBuilder.isEmpty() && cssRootBuilder.isEmpty()) return
+        saveCssVariables()
 
-        varFile.writeText(cssFile.absolutePath + "\n")
+        varFile.saveCssFilenames()
         varFile.saveVariables(GlobalVariablesVisitor.varValues)
-        cssFile.writeText(cssRootBuilder.toString())
-        cssFile.appendText(cssBuilder.toString())
+        mainCssFile.appendText(cssBuilder.toString())
         logFile.writeText(logBuilder.toString())
+        saveSubprojCssFiles()
     }
 }

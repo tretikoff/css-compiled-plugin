@@ -39,14 +39,15 @@ class Welcome(props: WelcomeProps) : RComponent<WelcomeProps, WelcomeState>(prop
         }
         styledInput {
             css {
-                +"#${WelcomeStyles.getClassName { it::textProperty }}"
-                +WelcomeStyles.getClassSelector { it::textInput }
-                adjacentSibling("div") {
-                    paddingTop = 0.px
-                }
-                adjacentSibling(WelcomeStyles.getClassSelector { it::textInput }) {
-                    paddingTop = 1.px
-                }
+//                +"#${WelcomeStyles.getClassName { it::textProperty }}"
+//                +WelcomeStyles.getClassSelector { it::textInput }
+//                adjacentSibling("div") {
+//                    paddingTop = 0.px
+//                }
+//                adjacentSibling(WelcomeStyles.getClassSelector { it::textInput }) {
+//                    paddingTop = 1.px
+//                }
+                +WelcomeStyles.textInput
                 alignItems = Align.flexEnd
             }
             attrs {
