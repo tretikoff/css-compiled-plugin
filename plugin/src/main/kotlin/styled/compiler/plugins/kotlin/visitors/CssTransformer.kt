@@ -13,6 +13,7 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
+import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -21,12 +22,12 @@ import styled.compiler.plugins.kotlin.*
 private var cssBuilderParameter: IrValueParameter? = null
 
 class CssTransformer(private val className: String, private val isStylesheet: Boolean = false) : IrElementTransformerVoid() {
-    private fun IrCall.acceptWithParameter() {
+    fun transformCall(cssCall: IrCall) {
         try {
-            cssBuilderParameter = getArgumentsWithIr().firstNotNullOfOrNull { (_, expr) ->
+            cssBuilderParameter = cssCall.getArgumentsWithIr().firstNotNullOfOrNull { (_, expr) ->
                 (expr as? IrFunctionExpressionImpl)?.function?.extensionReceiverParameter
             }
-            transformChildrenVoid(this@CssTransformer)
+            cssCall.transformChildrenVoid(this)
             cssBuilderParameter = null
         } catch (e: Exception) {
             e.stackTraceToString().writeLog()
@@ -37,10 +38,9 @@ class CssTransformer(private val className: String, private val isStylesheet: Bo
         val owner = expression.symbol.owner
         var updatedCall = expression
         val cssFun = cssBuilderParameter?.type?.classOrNull?.owner?.addClassFun
-        if (owner.isPlus() && cssFun != null) {
+        "$cssFun ${owner.isPlus()}".writeLog()
+        if (owner.isPlus() && cssFun != null) { // TODO check call args (should be stylesheet)
             return expression.transform(StyleSheetCallTransformer(), null)
-        } else if (expression.isCssCall() || expression.name == "css") {
-            expression.acceptWithParameter()
         } else if (owner.isInCssLib() && cssFun != null) {
             when (mode) {
                 Mode.FULL -> updatedCall = expression.transformWith(cssFun, className)
@@ -50,11 +50,6 @@ class CssTransformer(private val className: String, private val isStylesheet: Bo
             }
         }
         return updatedCall
-    }
-
-    override fun visitElement(element: IrElement): IrElement {
-        element.transformChildrenVoid(this)
-        return element
     }
 }
 
@@ -67,8 +62,7 @@ fun IrCall.transformWith(cssFun: IrSimpleFunction, className: String): IrCall {
         typeArgumentsCount = 0,
         valueArgumentsCount = 0,
     )
-    val receiver =
-        dispatchReceiver ?: IrGetValueImpl(0, 0, cssBuilderParameter!!.type, cssBuilderParameter!!.symbol)
+    val receiver = dispatchReceiver ?: IrGetValueImpl(0, 0, cssBuilderParameter!!.type, cssBuilderParameter!!.symbol)
     updatedCall.dispatchReceiver = receiver
     updatedCall.extensionReceiver = IrConstImpl(
         extensionReceiver?.startOffset ?: 0,

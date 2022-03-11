@@ -25,7 +25,7 @@ internal enum class LogLevel {
     ALL,
     ERROR
 }
-internal fun tryLog(operation: String, level: LogLevel = LogLevel.ERROR, block: () -> Unit) {
+internal inline fun tryLog(operation: String, level: LogLevel = LogLevel.ERROR, block: () -> Unit) {
     try {
         if (level == LogLevel.ALL) "$operation started".writeLog()
         block()

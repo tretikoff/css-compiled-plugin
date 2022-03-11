@@ -32,20 +32,19 @@ class CssCollector(private val className: String) : IrElementVisitor<Unit, Strin
                 data.appendLine(".$className {").append(str).appendLine("}")
             }
         } else if (owner.isInCssLib()) {
+            if (owner.isPlus()) return // TODO
             // https://stackoverflow.com/questions/48635210/how-to-obtain-properties-or-function-declared-in-kotlin-extensions-by-java-refle
             val classes = listOf(Class.forName("kotlinx.css.StyledElementKt"), Class.forName("kotlinx.css.CssBuilder"))
             // TODO custom common-code CssBuilder extensions
             // TODO extensions with blocks and ampersands
             val values = expression.extractValues()
-            try {
+            tryLog("") {
                 val clazz = classes.firstOrNull { it.containsMethod(expression.name.normalizeGetSet()) } ?: return
                 if (expression.extensionReceiver != null) {
                     clazz.invokeMethod(null, expression.name, css, *values)
                 } else {
                     clazz.invokeMethod(null, expression.name, *values)
                 }
-            } catch (e: Throwable) {
-                e.stackTraceToString().writeLog()
             }
         } else {
 //            "$$$${owner.packageStr} ${owner.name} ${owner.dump()}".writeLog()

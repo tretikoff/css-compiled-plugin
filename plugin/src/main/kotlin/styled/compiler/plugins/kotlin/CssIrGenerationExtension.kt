@@ -82,6 +82,7 @@ class CssIrGenerationExtension(private val resourcesPath: String, varPath: Strin
                 entries.forEach { (name, value) -> appendLine("--$name: $value;") }
                 appendLine("}")
                 mainCssFile.writeText(toString())
+                files.add(mainCssFile)
             }
         }
     }
@@ -99,7 +100,7 @@ class CssIrGenerationExtension(private val resourcesPath: String, varPath: Strin
     }
 
     private fun TreeVisitor.importSubprojCssFiles() {
-        files.addAll(loadedSubprojFiles + mainCssFile)
+        files.addAll(loadedSubprojFiles)
         files.forEach(mainFile::importStaticCss)
     }
 
@@ -115,17 +116,17 @@ class CssIrGenerationExtension(private val resourcesPath: String, varPath: Strin
         // collect variables
         fragment.acceptChildrenVoid(GlobalVariablesVisitor())
         // then transform and collect css code
+
+        // TODO make order-independent
         val treeVisitor = TreeVisitor(resourcesPath)
         fragment.acceptChildren(treeVisitor, cssBuilder)
+        saveCssVariables()
+
         treeVisitor.loadSubprojCssFiles()
         treeVisitor.importSubprojCssFiles()
 
-
-        saveCssVariables()
-
         varFile.saveCssFilenames()
         varFile.saveVariables(GlobalVariablesVisitor.varValues)
-        mainCssFile.appendText(cssBuilder.toString())
         logFile.writeText(logBuilder.toString())
         saveSubprojCssFiles()
     }

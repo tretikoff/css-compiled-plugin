@@ -19,7 +19,7 @@ import kotlin.collections.set
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
-class TreeVisitor(val filePrefix: String) : AbstractTreeVisitor<StringBuilder>() {
+class TreeVisitor(private val filePrefix: String) : AbstractTreeVisitor<StringBuilder>() {
     var cssFiles = ArrayDeque<File>()
 
     lateinit var mainFile: IrFile
@@ -28,7 +28,7 @@ class TreeVisitor(val filePrefix: String) : AbstractTreeVisitor<StringBuilder>()
     private val generatedClassName: String
         get() = "ksc-static-${classNameId.incrementAndGet()}"
 
-    // Every
+    // Every css from file with filename is written to resources/static/filename.css
     override fun visitFile(declaration: IrFile, data: StringBuilder) {
         if (!::mainFile.isInitialized) {
             mainFile = declaration
@@ -56,7 +56,7 @@ class TreeVisitor(val filePrefix: String) : AbstractTreeVisitor<StringBuilder>()
                 expression.accept(CssCollector(generatedClassName), css)
                 data.append(css)
             }
-            expression.transform(CssTransformer(generatedClassName), null)
+            CssTransformer(generatedClassName, isStylesheet = false).transformCall(expression)
         } else if (expression.isSetCustomProperty()) {
             val name = expression.getValueArgument(0)
             val value = expression.getValueArgument(1)
@@ -88,13 +88,15 @@ class TreeVisitor(val filePrefix: String) : AbstractTreeVisitor<StringBuilder>()
         }
     }
 
-    private fun IrConstructorCall.isMain() = isAnnotation(FqName("kotlin.js.JsExport")) // Heuristics to check if current file is main app file
-
     override fun visitElement(element: IrElement, data: StringBuilder) {
         if (element is IrMutableAnnotationContainer && element.annotations.any { it.isMain() }) {
+//        if (declaration.annotations.any { it.isMain() }) {
             "^^^^^^^^${currentFile.name}".writeLog()
             mainFile = currentFile
         }
+        if (element is IrClass || element is IrCall || element is IrFile) return // TODO wtf? how to do better?
         element.acceptChildren(this, data)
     }
+
+    private fun IrConstructorCall.isMain() = isAnnotation(FqName("kotlin.js.JsExport")) // Heuristics to check if current file is main app file
 }

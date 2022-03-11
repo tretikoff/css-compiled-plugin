@@ -43,7 +43,7 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
                         element.accept(CssCollector(className), css)
                         data.append(css)
                     }
-//                    element.transform(CssTransformer(className, isStylesheet = true), null)
+//                    element.transform(CssTransformer(className, isStylesheet = true, element), null)
                 } else {
                     element.acceptChildren(this, data);
                 }

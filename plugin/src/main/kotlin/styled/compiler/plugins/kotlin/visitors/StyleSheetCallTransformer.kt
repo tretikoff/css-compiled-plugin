@@ -41,8 +41,9 @@ class StyleSheetCallTransformer : IrElementTransformerVoid() {
             className = createStyleSheetClassname(name, expression.name.replacePropertyAccessor())
         }
         if (callee.isPlus() && cssFun != null) {
-            "transforming $className call".writeLog()
-            updatedCall = expression.transformWith(cssFun, className)
+            tryLog("transforming $className call", LogLevel.ALL) {
+                updatedCall = expression.transformWith(cssFun, "$className xxx")
+            }
         }
         return updatedCall
     }
