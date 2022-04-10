@@ -4,28 +4,22 @@ import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
-import styled.compiler.plugins.kotlin.visitors.GlobalVariablesVisitor
-import styled.compiler.plugins.kotlin.visitors.TreeVisitor
+import styled.compiler.plugins.kotlin.visitors.*
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Paths
+import kotlin.io.path.exists
 
 lateinit var fragment: IrModuleFragment
 lateinit var context: IrPluginContext
 
-private val logBuilder = StringBuilder()
 private val cssBuilder = StringBuilder()
 
 enum class Mode {
-    FULL,
-    STYLESHEET_STATIC
+    FULL, STYLESHEET_STATIC
 }
 
 val mode = Mode.STYLESHEET_STATIC
-
-fun String.writeLog() {
-    logBuilder.appendLine(this)
-}
 
 private fun File.saveVariables(values: Map<String, String>) {
     values.forEach { (name, value) ->
@@ -46,9 +40,7 @@ private fun MutableList<File>.addCssFile(filename: String) = try {
 fun File.create() = apply { parentFile.mkdirs(); createNewFile() }
 
 // У каждого плагина появляется список сгенерированных CSS файлов
-class CssIrGenerationExtension(private val resourcesPath: String, varPath: String, private val subprojectVarPaths: List<String>) :
-    IrGenerationExtension {
-    private val logFile by lazy { resourcesPath.resource("dump.xlog").create() }
+class CssIrGenerationExtension(private val resourcesPath: String, varPath: String, private val subprojectVarPaths: List<String>) : IrGenerationExtension {
     private val mainCssFile by lazy { resourcesPath.resource("index.css").create() }
     private val loadedSubprojFiles = mutableListOf<File>()
     private val cssFilenamesCacheFile by lazy { resourcesPath.resource("cssSub.txt").create() }
@@ -61,6 +53,7 @@ class CssIrGenerationExtension(private val resourcesPath: String, varPath: Strin
                 File(it).reader().useLines { lines ->
                     lines.forEachIndexed { i, line ->
                         if (i == 0) {
+                            "$$$$$line".writeLog()
                             line.split(",").forEach { loadedSubprojFiles.addCssFile(it) }
                         } else {
                             val (name, value) = line.split(":")
@@ -82,7 +75,7 @@ class CssIrGenerationExtension(private val resourcesPath: String, varPath: Strin
                 entries.forEach { (name, value) -> appendLine("--$name: $value;") }
                 appendLine("}")
                 mainCssFile.writeText(toString())
-                files.add(mainCssFile)
+//                files.add(mainCssFile)
             }
         }
     }
@@ -93,15 +86,10 @@ class CssIrGenerationExtension(private val resourcesPath: String, varPath: Strin
     }
 
     private fun TreeVisitor.loadSubprojCssFiles() {
-        for (filename in cssFilenamesCacheFile.readLines()) {
+        for (filename in cssFilenamesCacheFile.readLines().filter { Paths.get(it).exists() }) {
             files.add(File(filename))
         }
         files.addAll(cssFiles)
-    }
-
-    private fun TreeVisitor.importSubprojCssFiles() {
-        files.addAll(loadedSubprojFiles)
-        files.forEach(mainFile::importStaticCss)
     }
 
     private fun File.saveCssFilenames() {
@@ -123,11 +111,13 @@ class CssIrGenerationExtension(private val resourcesPath: String, varPath: Strin
         saveCssVariables()
 
         treeVisitor.loadSubprojCssFiles()
-        treeVisitor.importSubprojCssFiles()
+        files.addAll(loadedSubprojFiles)
+        fragment.transform(ImportTransformer(files.filter { it.exists() }), null)
+//        fragment.transformChildren(ImportTransformer(files.filter { it.exists() }), null)
 
         varFile.saveCssFilenames()
         varFile.saveVariables(GlobalVariablesVisitor.varValues)
-        logFile.writeText(logBuilder.toString())
         saveSubprojCssFiles()
+        treeVisitor.flush()
     }
 }

@@ -1,8 +1,8 @@
 plugins {
     id("kotlin")
 }
-val kotlin_version = "1.6.0"
-val css_version = "1.0.0-pre.278-kotlin-$kotlin_version"
+val kotlin_version = "1.6.20"
+val css_version = "1.0.0-pre.337"
 
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlin_version")

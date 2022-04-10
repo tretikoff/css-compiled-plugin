@@ -2,7 +2,6 @@
 
 package styled.compiler.plugins.kotlin.visitors
 
-import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
 import org.jetbrains.kotlin.ir.expressions.IrCall
@@ -13,7 +12,6 @@ import org.jetbrains.kotlin.ir.expressions.impl.IrConstImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrFunctionExpressionImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrGetValueImpl
 import org.jetbrains.kotlin.ir.types.classOrNull
-import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.getArgumentsWithIr
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -53,6 +51,7 @@ class CssTransformer(private val className: String, private val isStylesheet: Bo
     }
 }
 
+// Transform stylesheet injection call to string classname add
 fun IrCall.transformWith(cssFun: IrSimpleFunction, className: String): IrCall {
     val updatedCall = IrCallImpl(
         symbol = cssFun.symbol,

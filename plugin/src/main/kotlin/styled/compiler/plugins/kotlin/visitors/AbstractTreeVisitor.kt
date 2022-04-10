@@ -7,7 +7,6 @@ import org.jetbrains.kotlin.ir.declarations.IrVariable
 import org.jetbrains.kotlin.ir.expressions.IrSetValue
 import org.jetbrains.kotlin.ir.util.nameForIrSerialization
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
-import styled.compiler.plugins.kotlin.writeLog
 
 private val variables = mutableMapOf<IrDeclaration, Any?>()
 private val unvisitedVariables = mutableMapOf<IrDeclaration, IrElement?>()
@@ -18,18 +17,19 @@ abstract class AbstractTreeVisitor<T> : IrElementVisitor<Unit, T> {
     }
 
     private fun saveVariable(declaration: IrDeclaration, initializer: IrElement?) {
-        val value = try {
-            initializer?.extractValues()?.firstOrNull()
-        } catch (e: Exception) {
-            e.stackTraceToString().writeLog();
-            null
-        }
-        "saving variable ${declaration.nameForIrSerialization} $declaration $value".writeLog()
-        if (value != null) {
-            variables[declaration] = value
-        } else {
-            unvisitedVariables[declaration] = value
-        }
+        // TODO uncomment
+//        val value = try {
+//            initializer?.extractValues()?.firstOrNull()
+//        } catch (e: Exception) {
+//            e.stackTraceToString().writeLog();
+//            null
+//        }
+//        "saving variable ${declaration.nameForIrSerialization} $declaration $value".writeLog()
+//        if (value != null) {
+//            variables[declaration] = value
+//        } else {
+//            unvisitedVariables[declaration] = value
+//        }
     }
 
     override fun visitVariable(declaration: IrVariable, data: T) {

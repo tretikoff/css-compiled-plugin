@@ -13,9 +13,9 @@ import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import styled.compiler.plugins.kotlin.*
 
 val IrDeclarationContainer.addClassFun: IrSimpleFunction?
-    get() = functionDecls.firstOrNull(IrFunction::isAddClassFun)?.symbol?.owner as? IrSimpleFunction
+    get() = functionDecls.firstOrNull(IrFunction::isCssClassSetter)?.symbol?.owner as? IrSimpleFunction
 
-val IrFunction.isAddClassFun
+val IrFunction.isCssClassSetter
     get() = isPlus()
             && allParameters.size == 2
             && allParameters.lastOrNull()?.type == context.irBuiltIns.stringType

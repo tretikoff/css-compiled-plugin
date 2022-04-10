@@ -3,13 +3,14 @@ plugins {
     id("CssGradlePlugin")
 }
 
-val cssVersion = "1.0.0-pre.278-kotlin-1.6.0"
+val cssVersion = "1.0.0-pre.337"
 
 kotlin {
     js(IR)
     sourceSets {
         val jsMain by getting {
             dependencies {
+                implementation(kotlin("stdlib-js"))
                 implementation("org.jetbrains.kotlin-wrappers:kotlin-css:$cssVersion")
             }
         }

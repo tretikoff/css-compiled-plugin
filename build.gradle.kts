@@ -3,13 +3,14 @@ buildscript {
         maven(url = "./gradle-plugin")
     }
 }
-val kotlin_version = "1.6.0"
-val react_version = "17.0.2-pre.278-kotlin-$kotlin_version"
-val react_dom_version = "17.0.2-pre.278-kotlin-$kotlin_version"
-val styled_next_version = "1.0-pre.278-kotlin-$kotlin_version"
+val kotlin_version = "1.6.20"
+val react_version = "18.1.0-pre.337"
+val react_dom_version = "18.1.0-pre.337"
+val styled_next_version = "1.1.0-pre.337"
+
 plugins {
-    kotlin("js") version "1.6.0"
-    id("CssGradlePlugin") version "0.1"
+    kotlin("js") version "1.6.20"
+    //id("CssGradlePlugin") version "0.1"
 }
 version = "0.1"
 group = "me.user"
@@ -34,13 +35,18 @@ dependencies {
     implementation("org.jetbrains.kotlin-wrappers:kotlin-styled-next:$styled_next_version")
     implementation(project(":shared"))
     implementation(project(":stylesheets"))
+    implementation(kotlin("stdlib-js"))
     testImplementation(kotlin("test"))
 }
 
 kotlin {
     js(IR) {
+        useCommonJs()
         binaries.executable()
         browser {
+            dceTask {
+                dceOptions.devMode = true
+            }
             commonWebpackConfig {
                 cssSupport.enabled = true
             }

@@ -8,7 +8,7 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import styled.compiler.plugins.kotlin.*
 
-class CssCollector(private val className: String) : IrElementVisitor<Unit, StringBuilder> {
+class ReflCssCollector(private val className: String) : IrElementVisitor<Unit, StringBuilder> {
     private lateinit var css: CssBuilder
 
     private fun collectCss(block: () -> Unit): String? {

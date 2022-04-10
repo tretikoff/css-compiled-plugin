@@ -30,15 +30,8 @@ gradlePlugin {
     }
 }
 
+
 publishing {
-    publications {
-        create<MavenPublication>("CssGradlePlugin") {
-            groupId = "CssGradlePlugin"
-            artifactId = "CssGradlePlugin"
-            version = "0.1"
-            from(components["kotlin"])
-        }
-    }
     repositories {
         maven {
             url = uri(".")

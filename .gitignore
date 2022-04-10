@@ -1,7 +1,5 @@
 .gradle/
 build/
 .idea/
-*.css
-*.xlog
 gradle-plugin/CssGradlePlugin
 /lib

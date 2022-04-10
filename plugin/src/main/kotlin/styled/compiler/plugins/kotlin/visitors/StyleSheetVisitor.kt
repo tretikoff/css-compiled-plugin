@@ -40,7 +40,7 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
                 if (element.name == "css") {
                     tryLog("Style sheet css traverse _______________") {
                         val css = StringBuilder()
-                        element.accept(CssCollector(className), css)
+                        element.accept(ReflCssCollector(className), css)
                         data.append(css)
                     }
 //                    element.transform(CssTransformer(className, isStylesheet = true, element), null)

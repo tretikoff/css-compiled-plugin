@@ -13,23 +13,24 @@ import org.jetbrains.kotlin.ir.types.isPrimitiveType
 import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.fileOrNull
 import org.jetbrains.kotlin.ir.util.statements
+import styled.compiler.plugins.kotlin.*
 import styled.compiler.plugins.kotlin.exceptions.ValueExtractionException
-import styled.compiler.plugins.kotlin.invokeMethod
-import styled.compiler.plugins.kotlin.name
-import styled.compiler.plugins.kotlin.replacePropertyAccessor
-import styled.compiler.plugins.kotlin.writeLog
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObject
 
 fun IrElement.extractDirectValues(): Array<Any?> {
     val values = mutableListOf<Any?>()
-    accept(PropertyVisitor(values), StringBuilder())
+    tryLog("extractDirectValues") {
+        accept(PropertyVisitor(values), StringBuilder())
+    }
     return values.toTypedArray()
 }
 
 fun IrElement.extractValues(): Array<Any?> {
     val values = mutableListOf<Any?>()
-    acceptChildren(PropertyVisitor(values), StringBuilder())
+    tryLog("extractValues") {
+        acceptChildren(PropertyVisitor(values), StringBuilder())
+    }
     return values.toTypedArray()
 }
 
@@ -123,7 +124,8 @@ class PropertyVisitor(private val values: MutableList<Any?>) : AbstractTreeVisit
     override fun visitBody(body: IrBody, data: StringBuilder) {
         body.statements.forEach {
             if (it is IrReturn) {
-                values.add(it.extractValues().single())
+                // TODO
+                values.add(it.extractValues().firstOrNull())
             }
         }
     }
