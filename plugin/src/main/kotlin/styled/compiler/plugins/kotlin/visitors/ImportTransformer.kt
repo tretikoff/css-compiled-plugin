@@ -33,7 +33,7 @@ class ImportTransformer(val files: List<File>) : IrElementTransformerVoid() {
     override fun visitFile(declaration: IrFile) = declaration.apply {
         if (initialized) return this
         ">>>${module.files.joinToString { it.name }}".writeLog()
-        files.forEach { file ->
+        files.filter{!it.path.contains("Support")}.forEach { file ->
             tryLog("CSS Import ${file.path}", LogLevel.ALL) {
                 val jsModule = context.referenceConstructors(FqName("kotlin.js.JsModule")).first()
                 val definedExt = context.referenceProperties(FqName("kotlin.js.definedExternally")).first().owner.getter!!

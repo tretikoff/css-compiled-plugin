@@ -4,7 +4,10 @@ import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
-import styled.compiler.plugins.kotlin.visitors.*
+import styled.compiler.plugins.kotlin.visitors.GlobalVariablesVisitor
+import styled.compiler.plugins.kotlin.visitors.ImportTransformer
+import styled.compiler.plugins.kotlin.visitors.TreeVisitor
+import styled.compiler.plugins.kotlin.visitors.writeLog
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Paths
@@ -19,7 +22,7 @@ enum class Mode {
     FULL, STYLESHEET_STATIC
 }
 
-val mode = Mode.STYLESHEET_STATIC
+val mode = Mode.FULL
 
 private fun File.saveVariables(values: Map<String, String>) {
     values.forEach { (name, value) ->
@@ -82,7 +85,8 @@ class CssIrGenerationExtension(private val resourcesPath: String, varPath: Strin
 
     private fun saveSubprojCssFiles() {
         // TODO use relative paths everywhere
-        cssFilenamesCacheFile.writeText(files.joinToString("\n") { it.absolutePath })
+        cssFilenamesCacheFile.writeText(files.filter { !it.path.contains("Application Support") }
+            .joinToString("\n") { it.absolutePath })
     }
 
     private fun TreeVisitor.loadSubprojCssFiles() {

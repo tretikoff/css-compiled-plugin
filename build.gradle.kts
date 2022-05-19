@@ -10,7 +10,7 @@ val styled_next_version = "1.1.0-pre.337"
 
 plugins {
     kotlin("js") version "1.6.20"
-    //id("CssGradlePlugin") version "0.1"
+    id("CssGradlePlugin") version "0.1"
 }
 version = "0.1"
 group = "me.user"

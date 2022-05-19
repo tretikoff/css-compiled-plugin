@@ -36,15 +36,12 @@ class CssTransformer(private val className: String, private val isStylesheet: Bo
         val owner = expression.symbol.owner
         var updatedCall = expression
         val cssFun = cssBuilderParameter?.type?.classOrNull?.owner?.addClassFun
-        "$cssFun ${owner.isPlus()}".writeLog()
+//        "$cssFun ${owner.isPlus()}".writeLog()
         if (owner.isPlus() && cssFun != null) { // TODO check call args (should be stylesheet)
             return expression.transform(StyleSheetCallTransformer(), null)
         } else if (owner.isInCssLib() && cssFun != null) {
-            when (mode) {
-                Mode.FULL -> updatedCall = expression.transformWith(cssFun, className)
-                Mode.STYLESHEET_STATIC -> if (isStylesheet) {
-                    updatedCall = expression.transformWith(cssFun, className)
-                }
+            if (mode == Mode.FULL || (mode == Mode.STYLESHEET_STATIC && isStylesheet)) {
+                updatedCall = expression.transformWith(cssFun, className)
             }
         }
         return updatedCall

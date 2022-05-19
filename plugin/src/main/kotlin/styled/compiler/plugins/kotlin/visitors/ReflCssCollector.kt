@@ -8,40 +8,25 @@ import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.visitors.IrElementVisitor
 import styled.compiler.plugins.kotlin.*
 
-class ReflCssCollector(private val className: String) : IrElementVisitor<Unit, StringBuilder> {
-    private lateinit var css: CssBuilder
+enum class CssRuleType { BLOCK, ATOMIC }
+typealias CssInfo = ArrayList<CssBuilder>
 
-    private fun collectCss(block: () -> Unit): String? {
-        css = CssBuilder("  ")
-        return try {
-            block()
-            css.toString()
-        } catch (e: Throwable) {
-            e.stackTraceToString().writeLog()
-            null
-        }
-    }
-
-    override fun visitCall(expression: IrCall, data: StringBuilder) {
+class ReflCssCollector(private val ruleType: CssRuleType = CssRuleType.BLOCK) : IrElementVisitor<Unit, CssInfo> {
+    override fun visitCall(expression: IrCall, data: CssInfo) {
         val owner = expression.symbol.owner
         if (expression.isCssCall() || expression.name == "css") {
-            val str = collectCss {
-                expression.acceptChildren(this, data)
-            }
-            str?.let {
-                data.appendLine(".$className {").append(str).appendLine("}")
-            }
-        } else if (owner.isInCssLib()) {
-            if (owner.isPlus()) return // TODO
-            // https://stackoverflow.com/questions/48635210/how-to-obtain-properties-or-function-declared-in-kotlin-extensions-by-java-refle
+            expression.acceptChildren(this, data)
+        } else if (owner.isInCssLib() && !owner.isPlus()) {
             val classes = listOf(Class.forName("kotlinx.css.StyledElementKt"), Class.forName("kotlinx.css.CssBuilder"))
-            // TODO custom common-code CssBuilder extensions
-            // TODO extensions with blocks and ampersands
             val values = expression.extractValues()
+            val cssBuilder = when (ruleType) {
+                CssRuleType.BLOCK -> data.firstOrNull() ?: CssBuilder("  ").also { data.add(it) }
+                CssRuleType.ATOMIC -> CssBuilder("  ").also { data.add(it) }
+            }
             tryLog("") {
                 val clazz = classes.firstOrNull { it.containsMethod(expression.name.normalizeGetSet()) } ?: return
                 if (expression.extensionReceiver != null) {
-                    clazz.invokeMethod(null, expression.name, css, *values)
+                    clazz.invokeMethod(null, expression.name, cssBuilder, *values)
                 } else {
                     clazz.invokeMethod(null, expression.name, *values)
                 }
@@ -58,7 +43,7 @@ class ReflCssCollector(private val className: String) : IrElementVisitor<Unit, S
         return false
     }
 
-    override fun visitElement(element: IrElement, data: StringBuilder) {
+    override fun visitElement(element: IrElement, data: CssInfo) {
         element.acceptChildren(this, data)
     }
 }

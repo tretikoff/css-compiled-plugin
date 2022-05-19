@@ -1,39 +1,35 @@
 package styled.compiler.plugins.kotlin.visitors
 
 import org.jetbrains.kotlin.backend.common.push
-import org.jetbrains.kotlin.descriptors.ClassKind
-import org.jetbrains.kotlin.descriptors.DescriptorVisibilities
-import org.jetbrains.kotlin.descriptors.Modality
 import org.jetbrains.kotlin.ir.IrElement
-import org.jetbrains.kotlin.ir.declarations.*
-import org.jetbrains.kotlin.ir.declarations.impl.IrAnonymousInitializerImpl
-import org.jetbrains.kotlin.ir.declarations.impl.IrClassImpl
+import org.jetbrains.kotlin.ir.declarations.IrClass
+import org.jetbrains.kotlin.ir.declarations.IrFile
+import org.jetbrains.kotlin.ir.declarations.IrMutableAnnotationContainer
+import org.jetbrains.kotlin.ir.declarations.name
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
-import org.jetbrains.kotlin.ir.expressions.impl.IrBlockBodyImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
-import org.jetbrains.kotlin.ir.expressions.impl.IrGetFieldImpl
-import org.jetbrains.kotlin.ir.symbols.impl.IrAnonymousInitializerSymbolImpl
-import org.jetbrains.kotlin.ir.symbols.impl.IrClassSymbolImpl
 import org.jetbrains.kotlin.ir.util.dump
 import org.jetbrains.kotlin.ir.util.isAnnotation
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.name.Name
 import styled.compiler.plugins.kotlin.*
 import java.io.File
 import java.nio.file.Paths
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.abs
 
 val logBuilder = StringBuilder()
 fun String.writeLog() {
-    logBuilder.appendLine(this)
+//    logBuilder.appendLine(this)
 }
+
+private enum class SplitCssStrategy { ALL_TO_FILE, FILE_TO_FILE }
 
 /**
  * Visitor traverses through all the code, finds stylesheet and css nodes and applies [StyleSheetVisitor] and [CssTransformer] to them
  */
 class TreeVisitor(private val filePrefix: String) : AbstractTreeVisitor<StringBuilder>() {
     var cssFiles = ArrayDeque<File>()
+    private val splitCssStrategy = SplitCssStrategy.FILE_TO_FILE
 
     init {
         flush(append = false)
@@ -44,13 +40,8 @@ class TreeVisitor(private val filePrefix: String) : AbstractTreeVisitor<StringBu
     }
 
     lateinit var mainFile: IrFile
-
-    // TODO create new class
-    var classWithImports: IrClass? = null
     private lateinit var currentFile: IrFile
     private var classNameId = AtomicInteger(0)
-    private val generatedClassName: String
-        get() = "ksc-static-${classNameId.incrementAndGet()}"
 
     // Every css from file with filename is written to resources/static/filename.css
     override fun visitFile(declaration: IrFile, data: StringBuilder) {
@@ -76,32 +67,50 @@ class TreeVisitor(private val filePrefix: String) : AbstractTreeVisitor<StringBu
     }
 
     private fun IrFile.saveCss(css: StringBuilder) {
-        css.flushToFile("$name.css")?.let { file ->
-            cssFiles.push(file)
+        when (splitCssStrategy) {
+            SplitCssStrategy.ALL_TO_FILE -> {
+                val mainCssFile = cssFiles.firstOrNull() ?: File(filePrefix, "index.css").apply { create(); cssFiles.push(this) }
+                mainCssFile.appendText(css.toString() + "\n")
+            }
+            SplitCssStrategy.FILE_TO_FILE ->
+                css.flushToFile("$name.css")?.let { file ->
+                    cssFiles.push(file)
+                }
         }
+    }
+
+    private fun String.generateClassname(): String {
+        val hash = hashCode()
+        return ('a' + abs(hash % 26)) + abs(hash % 1000).toString()
     }
 
     override fun visitCall(expression: IrCall, data: StringBuilder) {
         super.visitCall(expression, data)
         if (expression.isCssCall()) {
-//            tryLog("Tree css build failed -----------------") {
-//                val css = StringBuilder()
-//                expression.accept(ReflCssCollector(generatedClassName), css)
-//                data.append(css)
-//            }
-            CssTransformer(generatedClassName, isStylesheet = false).transformCall(expression)
+            tryLog("Tree css build failed -----------------") {
+                val css = CssInfo()
+                expression.accept(ReflCssCollector(CssRuleType.BLOCK), css)
+                val classnames = css.joinToString(" ") { cssBuilder ->
+                    val str = cssBuilder.toString()
+                    val classname = str.generateClassname()
+                    data.appendLine(".$classname {").append(str).appendLine("}")
+                    classname
+                }
+                "data $data".writeLog()
+                CssTransformer(classnames, isStylesheet = false).transformCall(expression)
+            }
         } else if (expression.isSetCustomProperty()) {
-            val name = expression.getValueArgument(0)
-            val value = expression.getValueArgument(1)
-            try {
+//            val name = expression.getValueArgument(0)
+//            val value = expression.getValueArgument(1)
+//            try {
 //                if (name != null && value != null) {
 //                    val extractedName = name.extractValues().single()
 //                    val extractedValue = value.extractValues().single()
 //                    GlobalVariablesVisitor.cssVarValues[extractedName.toString()] = extractedValue.toString()
 //                }
-            } catch (e: NoSuchElementException) {
-                // TODO
-            }
+//            } catch (e: NoSuchElementException) {
+//                // TODO
+//            }
         } else {
             expression.acceptChildren(this, data)
         }

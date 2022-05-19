@@ -39,9 +39,9 @@ class StyleSheetVisitor(private var name: String) : IrElementVisitor<Unit, Strin
             is IrCall -> {
                 if (element.name == "css") {
                     tryLog("Style sheet css traverse _______________") {
-                        val css = StringBuilder()
-                        element.accept(ReflCssCollector(className), css)
-                        data.append(css)
+                        val css = CssInfo()
+                        element.accept(ReflCssCollector(CssRuleType.BLOCK), css)
+                        data.appendLine(".$className {").append(css.first()).appendLine("}")
                     }
 //                    element.transform(CssTransformer(className, isStylesheet = true, element), null)
                 } else {
